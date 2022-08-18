@@ -55,19 +55,27 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    bool getLinkState(){ return link; }
-    bool getSyncState(){ return sync; }
-    bool getFbLinkState(){ return fbLink; }
-    
-    
+    bool getLinkState(){ return linkFlag; } 
+    bool getSyncState(){ return syncFlag; }
+    bool getFbLinkState(){ return fbLinkFlag; }
+    void clearDelayBuffer(){ delayLine.clearBuffer(); }
+    void filterSignal(juce::AudioBuffer<float> &buffer);
     
 private:
-    
-    void checkParameters();
+
+    void reset() override { lowpass.reset(); hipass.reset(); lowpass2.reset(); hipass2.reset(); };
+    juce::dsp::StateVariableTPTFilter<float> lowpass, hipass, lowpass2, hipass2;
+    void checkParameters( int bufferSize );
     float calculateSyncedDelayTime(int syncVal, int syncValType, float syncValOffset);
-    void delayTimeCalculations();
+    void delayTimeCalculations(float delTimeMod);
+    float lfoParametersAndCalculations(int bufferSize);
+    void filterParameters();
+    void feedbackParameters();
+    void overdriveParameters();
+    void detuneParameters();
     
     sjf_pitchShifter delayLine;
+    sjf_overdrive overdrive;
     juce::AudioBuffer<float> tempBuffer;
     
     
@@ -95,19 +103,26 @@ private:
     std::atomic<float>* syncValLOffsetParameter = nullptr;
     std::atomic<float>* syncValROffsetParameter = nullptr;
     std::atomic<float>* fbLinkParameter = nullptr;
+    std::atomic<float>* fbControlParameter = nullptr;
+    std::atomic<float>* hpCutOffParameter = nullptr;
+    std::atomic<float>* lpCutOffParameter = nullptr;
+    std::atomic<float>* overdriveFlagParameter = nullptr;
+    std::atomic<float>* overdriveGainParameter = nullptr;
+    std::atomic<float>* overdriveOutParameter = nullptr;
+    std::atomic<float>* overdrivePlacementParameter = nullptr;
+    std::atomic<float>* lfoDepthParameter = nullptr;
+    std::atomic<float>* lfoRateParameter = nullptr;
     
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> dry, wet, fbL, fbR;
-    //    float dry = 100.0f;
-    //    float wet = 80.0f;
-    //    float fb = 40.0f;
-    //    float delT = 500.0f;
-    //    float stSpread = 0.0f;
+    
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> dry, wet, fbL, fbR, hpCutOff, lpCutOff, overdriveGain, overdriveOut, lfoR, lfoD;
     float detuneL, detuneR;
-    float bpm = 120.0f;
+    float bpm = 120.0f, delTL, delTR;
     int syncValL, syncValR, syncValLType, syncValRType;
-    float syncValLOffset, syncValROffset;
-    bool link, sync, fbLink;
+    float syncValLOffset, syncValROffset/*, overdrivePlacement*/;
+    bool linkFlag, syncFlag, fbLinkFlag, fbControlFlag, overdriveFlag;
 
+    
+    sjf_oscillator lfo;
     
     
     //==============================================================================
