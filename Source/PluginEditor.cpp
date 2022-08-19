@@ -12,12 +12,16 @@
 #define potSize 80
 #define textHeight 20
 #define indent 10
-#define delayTimeBackgroundColour juce::Colour(25, 50, 25)
-#define detuneBackgroundColour juce::Colour(5, 25, 50)
-#define feedbackBackgroundColour juce::Colour(50, 5, 50)
-#define filterBackgroundColour juce::Colour(75, 50, 50)
-#define overdriveBackgroundColour juce::Colour(50, 75, 50)
-#define lfoBackgroundColour juce::Colour(50, 50, 75)
+#define alph 0.5f
+#define delayTimeBackgroundColour juce::Colour(25, 50, 25).withAlpha( alph )
+#define detuneBackgroundColour juce::Colour(5, 25, 50).withAlpha( alph )
+#define feedbackBackgroundColour juce::Colour(50, 5, 50).withAlpha( alph )
+#define filterBackgroundColour juce::Colour(75, 50, 50).withAlpha( alph )
+#define overdriveBackgroundColour juce::Colour(50, 75, 50).withAlpha( alph )
+#define lfoBackgroundColour juce::Colour(50, 50, 75).withAlpha( alph )
+#define dryBackgroundColour juce::Colour(1, 25, 50).withAlpha( alph )
+#define wetBackgroundColour juce::Colour(50, 25, 1).withAlpha( alph )
+#define clearBufferBackgroundColour juce::Colour(100, 1, 1).withAlpha( alph )
 //==============================================================================
 SjfRecklessDelayAudioProcessorEditor::SjfRecklessDelayAudioProcessorEditor (SjfRecklessDelayAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p),  audioProcessor (p), valueTreeState (vts)
@@ -177,6 +181,7 @@ SjfRecklessDelayAudioProcessorEditor::SjfRecklessDelayAudioProcessorEditor (SjfR
     addAndMakeVisible(&clearDelayLineButton);
     clearDelayLineButton.setButtonText("Clear DelayLine");
     clearDelayLineButton.onClick = [this]{ audioProcessor.clearDelayBuffer() ; };
+    clearDelayLineButton.setColour(juce::TextButton::buttonColourId, clearBufferBackgroundColour);
     
     addAndMakeVisible(&lpCutOffSlider);
     lpCutOffSliderAttachment.reset(new SliderAttachment(valueTreeState, "lpCutOff", lpCutOffSlider));
@@ -268,7 +273,7 @@ void SjfRecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText("sjf-V-reckless_delay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("sjf_recklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
     g.setColour (delayTimeBackgroundColour);
     g.fillRect(delTLLabel.getX(), delTLLabel.getY(), delTRLabel.getRight()-delTLLabel.getX(), hostSyncButton.getBottom()- delTLLabel.getY());
 
@@ -286,6 +291,13 @@ void SjfRecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour(lfoBackgroundColour);
     g.fillRect(lfoDSlider.getX(), lfoDSlider.getY(), lfoRSlider.getRight() - lfoDSlider.getX() , lfoRSlider.getBottom() - lfoDSlider.getY());
+    
+    g.setColour(wetBackgroundColour);
+    g.fillRect(wetLabel.getX(), wetLabel.getY(), wetLabel.getRight() - wetLabel.getX() , wetSlider.getBottom() - wetLabel.getY());
+    
+    g.setColour(dryBackgroundColour);
+    g.fillRect(dryLabel.getX(), dryLabel.getY(), dryLabel.getRight() - dryLabel.getX() , drySlider.getBottom() - dryLabel.getY());
+    
 }
 
 void SjfRecklessDelayAudioProcessorEditor::resized()
