@@ -10,7 +10,9 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_label.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_numBox.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_lookAndFeel.h"
 //==============================================================================
 /**
 */
@@ -33,12 +35,12 @@ private:
     SjfRecklessDelayAudioProcessor& audioProcessor;
     juce::AudioProcessorValueTreeState& valueTreeState;
     
-    sjf_LookAndFeel otherLookandFeel;
+    sjf_lookAndFeel otherLookandFeel; 
     
     void timerCallback() override;
     
     juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider, overdriveOutSlider, lfoRSlider, lfoDSlider;
-    sjf_Label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, overdriveGainLabel, overdriveOutLabel, overdrivePlacementLabel;
+    sjf_label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, overdriveGainLabel, overdriveOutLabel, overdrivePlacementLabel;
     
     juce::ToggleButton linkButton, hostSyncButton, fbLinkButton, fbControlButton, overdriveOnButton;
     juce::TextButton clearDelayLineButton;

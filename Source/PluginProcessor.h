@@ -9,7 +9,9 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_audio.hpp"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_pitchShifter.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_overdrive.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_oscillator.h"
 //==============================================================================
 /**
 */
@@ -86,8 +88,6 @@ private:
     
     std::atomic<float>* dryParameter = nullptr;
     std::atomic<float>* wetParameter = nullptr;
-//    std::atomic<float>* delTParameter = nullptr;
-//    std::atomic<float>* stSpreadParameter = nullptr;
     std::atomic<float>* delTLParameter = nullptr;
     std::atomic<float>* delTRParameter = nullptr;
     std::atomic<float>* fbLParameter = nullptr;
