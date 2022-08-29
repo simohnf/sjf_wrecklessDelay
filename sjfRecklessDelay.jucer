@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="uoGWNc" name="sjfRecklessDelay" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" version="0.0.1"
-              pluginFormats="buildVST3">
-  <MAINGROUP id="PVCiWb" name="sjfRecklessDelay">
+<JUCERPROJECT id="uoGWNc" name="sjfWrecklessDelay" projectType="audioplug"
+              useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1"
+              version="0.0.1" pluginFormats="buildVST3" pluginManufacturer="sjf"
+              pluginName="sjf_WrecklessDelay" pluginDesc="sjf_WrecklessDelay">
+  <MAINGROUP id="PVCiWb" name="sjfWrecklessDelay">
     <GROUP id="{3744286B-F163-5927-09AF-2B1C1E7ECE10}" name="Source">
       <FILE id="faxsoy" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
