@@ -273,7 +273,7 @@ void SjfRecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText("sjf_recklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("sjf_WrecklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
     g.setColour (delayTimeBackgroundColour);
     g.fillRect(delTLLabel.getX(), delTLLabel.getY(), delTRLabel.getRight()-delTLLabel.getX(), hostSyncButton.getBottom()- delTLLabel.getY());
 
