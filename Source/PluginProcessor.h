@@ -9,21 +9,29 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_pitchShifter.h"
+//#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_pitchShifter.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_pitchShift.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_comb.h"
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_overdrive.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_oscillator.h"
+//#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_oscillator.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_audioUtilities.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_lpf.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_wavetables.h"
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_phasor.h"
 //==============================================================================
 /**
 */
-class SjfRecklessDelayAudioProcessor  : public juce::AudioProcessor
+
+class SjfWrecklessDelayAudioProcessor  : public juce::AudioProcessor
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
                             #endif
 {
+    static constexpr int NUM_CHANNELS = 2;
 public:
     //==============================================================================
-    SjfRecklessDelayAudioProcessor();
-    ~SjfRecklessDelayAudioProcessor() override;
+    SjfWrecklessDelayAudioProcessor();
+    ~SjfWrecklessDelayAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -60,23 +68,40 @@ public:
     bool getLinkState(){ return linkFlag; } 
     bool getSyncState(){ return syncFlag; }
     bool getFbLinkState(){ return fbLinkFlag; }
-    void clearDelayBuffer(){ delayLine.clearBuffer(); }
-    void filterSignal(juce::AudioBuffer<float> &buffer);
+    void clearDelayBuffer()
+    {
+        for ( int i = 0; i < NUM_CHANNELS; i++)
+        {
+            m_pitchShifter[ i ].clearDelayline();
+            m_delayLine[ i ].clearDelayline();
+        }
+    }
+//    void filterSignal(juce::AudioBuffer<float> &buffer);
     
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 private:
 
-    void reset() override { lowpass.reset(); hipass.reset(); lowpass2.reset(); hipass2.reset(); };
-    juce::dsp::StateVariableTPTFilter<float> lowpass, hipass, lowpass2, hipass2;
+    void initialise( int sampleRate );
+    
+    
+//    void reset() override { lowpass.reset(); hipass.reset(); lowpass2.reset(); hipass2.reset(); };
+//    juce::dsp::StateVariableTPTFilter<float> lowpass, hipass, lowpass2, hipass2;
     void checkParameters( int bufferSize );
     float calculateSyncedDelayTime(int syncVal, int syncValType, float syncValOffset);
-    void delayTimeCalculations(float delTimeMod);
-    float lfoParametersAndCalculations(int bufferSize);
+    void delayTimeCalculations( );
+    void lfoParametersAndCalculations( );
     void filterParameters();
     void feedbackParameters();
     void overdriveParameters();
     void detuneParameters();
     
-    sjf_pitchShifter delayLine;
+//    sjf_pitchShifter delayLine;
+    std::array< sjf_pitchShift< float >, NUM_CHANNELS > m_pitchShifter;
+    std::array< sjf_delayLine< float >, NUM_CHANNELS > m_delayLine;
+    std::array< sjf_lpf< float >, NUM_CHANNELS > m_lpf, m_hpf/*, m_fbSmoother, m_delayTimeSmoother*/;
+    sjf_phasor< float > m_modPhasor;
+    std::array< float, NUM_CHANNELS > m_fb, m_delayTime, m_detune;
+    
     sjf_overdrive overdrive;
     juce::AudioBuffer<float> tempBuffer;
     
@@ -108,13 +133,14 @@ private:
     std::atomic<float>* lpCutOffParameter = nullptr;
     std::atomic<float>* overdriveFlagParameter = nullptr;
     std::atomic<float>* overdriveGainParameter = nullptr;
-    std::atomic<float>* overdriveOutParameter = nullptr;
+//    std::atomic<float>* overdriveOutParameter = nullptr;
     std::atomic<float>* overdrivePlacementParameter = nullptr;
     std::atomic<float>* lfoDepthParameter = nullptr;
     std::atomic<float>* lfoRateParameter = nullptr;
+    std::atomic<float>* interpolationTypeParameter = nullptr;
     
-    
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> dry, wet, fbL, fbR, hpCutOff, lpCutOff, overdriveGain, overdriveOut, lfoR, lfoD;
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> dry, wet, /*fbL, fbR,*/ hpCutOff, lpCutOff, overdriveGain, /*overdriveOut,*/ lfoR, lfoD;
+    std::array< juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear>, NUM_CHANNELS > m_delayTimeSmoothers, m_fbSmoothers;
     float detuneL, detuneR;
     float bpm = 120.0f, delTL, delTR;
     int syncValL, syncValR, syncValLType, syncValRType;
@@ -122,9 +148,9 @@ private:
     bool linkFlag, syncFlag, fbLinkFlag, fbControlFlag, overdriveFlag;
 
     
-    sjf_oscillator lfo;
+//    sjf_oscillator lfo;
     
     
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SjfRecklessDelayAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SjfWrecklessDelayAudioProcessor)
 };

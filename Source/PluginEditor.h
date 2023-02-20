@@ -13,14 +13,15 @@
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_label.h"
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_numBox.h"
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_lookAndFeel.h"
+
 //==============================================================================
 /**
 */
-class SjfRecklessDelayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
+class SjfWrecklessDelayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
 {
 public:
-    SjfRecklessDelayAudioProcessorEditor (SjfRecklessDelayAudioProcessor&, juce::AudioProcessorValueTreeState& vts);
-    ~SjfRecklessDelayAudioProcessorEditor() override;
+    SjfWrecklessDelayAudioProcessorEditor (SjfWrecklessDelayAudioProcessor&, juce::AudioProcessorValueTreeState& vts);
+    ~SjfWrecklessDelayAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -32,25 +33,25 @@ public:
     
     
 private:
-    SjfRecklessDelayAudioProcessor& audioProcessor;
+    SjfWrecklessDelayAudioProcessor& audioProcessor;
     juce::AudioProcessorValueTreeState& valueTreeState;
     
     sjf_lookAndFeel otherLookandFeel; 
     
     void timerCallback() override;
     
-    juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider, overdriveOutSlider, lfoRSlider, lfoDSlider;
-    sjf_label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, overdriveGainLabel, overdriveOutLabel, overdrivePlacementLabel;
+    juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider,/* overdriveOutSlider,*/ lfoRSlider, lfoDSlider;
+    sjf_label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, modulationLabel1, modulationLabel2, overdriveOutLabel, overdrivePlacementLabel;
     
     juce::ToggleButton linkButton, hostSyncButton, fbLinkButton, fbControlButton, overdriveOnButton;
     juce::TextButton clearDelayLineButton;
     
-    juce::ComboBox syncValLComboBox, syncValRComboBox, syncValLTypeComboBox, syncValRTypeComboBox, overdrivePlacementComboBox;
+    juce::ComboBox interpolationTypeBox, syncValLComboBox, syncValRComboBox, syncValLTypeComboBox, syncValRTypeComboBox, overdrivePlacementComboBox;
     sjf_numBox syncValLOffsetNumBox, syncValROffsetNumBox, detuneLSlider, detuneRSlider;
     
-    std::unique_ptr<SliderAttachment> drySliderAttachment, wetSliderAttachment, fbLSliderAttachment, fbRSliderAttachment, detuneLSliderAttachment, detuneRSliderAttachment, delTLSliderAttachment, delTRSliderAttachment, syncValLOffsetNumBoxAttachment, syncValROffsetNumBoxAttachment, lpCutOffSliderAttachment, hpCutOffSliderAttachment, overdriveGainSliderAttachment, overdriveOutSliderAttachment, lfoRSliderAttachment, lfoDSliderAttachment;
+    std::unique_ptr<SliderAttachment> drySliderAttachment, wetSliderAttachment, fbLSliderAttachment, fbRSliderAttachment, detuneLSliderAttachment, detuneRSliderAttachment, delTLSliderAttachment, delTRSliderAttachment, syncValLOffsetNumBoxAttachment, syncValROffsetNumBoxAttachment, lpCutOffSliderAttachment, hpCutOffSliderAttachment, overdriveGainSliderAttachment, /*overdriveOutSliderAttachment,*/ lfoRSliderAttachment, lfoDSliderAttachment;
     std::unique_ptr<ButtonAttachment> linkButtonAttachment, hostSyncButtonAttachment, fbLinkButtonAttachment, fbControlButtonAttachment, overdriveOnButtonAttachment;
-    std::unique_ptr<ComboBoxAttachment> syncValLComboBoxAttachment, syncValRComboBoxAttachment, syncValLTypeComboBoxAttachment, syncValRTypeComboBoxAttachment, overdrivePlacementComboBoxAttachment;
+    std::unique_ptr<ComboBoxAttachment> interpolationTypeBoxAttachment, syncValLComboBoxAttachment, syncValRComboBoxAttachment, syncValLTypeComboBoxAttachment, syncValRTypeComboBoxAttachment, overdrivePlacementComboBoxAttachment;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SjfRecklessDelayAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SjfWrecklessDelayAudioProcessorEditor)
 };

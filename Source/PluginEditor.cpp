@@ -23,7 +23,7 @@
 #define wetBackgroundColour juce::Colour(50, 25, 1).withAlpha( alph )
 #define clearBufferBackgroundColour juce::Colour(100, 1, 1).withAlpha( alph )
 //==============================================================================
-SjfRecklessDelayAudioProcessorEditor::SjfRecklessDelayAudioProcessorEditor (SjfRecklessDelayAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
+SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (SjfWrecklessDelayAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p),  audioProcessor (p), valueTreeState (vts)
 {
     setLookAndFeel (&otherLookandFeel);
@@ -216,18 +216,18 @@ SjfRecklessDelayAudioProcessorEditor::SjfRecklessDelayAudioProcessorEditor (SjfR
     overdriveGainSlider.setSliderStyle (juce::Slider::Rotary);
     overdriveGainSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     overdriveGainSlider.setNumDecimalPlacesToDisplay(3);
-    overdriveGainLabel.attachToComponent(&overdriveGainSlider, false);
-    overdriveGainLabel.setText("Gain", juce::dontSendNotification);
-    overdriveGainLabel.setJustificationType (juce::Justification::centred);
-    
-    addAndMakeVisible(&overdriveOutSlider);
-    overdriveOutSliderAttachment.reset( new SliderAttachment(valueTreeState, "overdriveOut", overdriveOutSlider));
-    overdriveOutSlider.setSliderStyle (juce::Slider::Rotary);
-    overdriveOutSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
-    overdriveOutSlider.setNumDecimalPlacesToDisplay(3);
-    overdriveOutLabel.attachToComponent(&overdriveOutSlider, false);
-    overdriveOutLabel.setText("Out Level", juce::dontSendNotification);
-    overdriveOutLabel.setJustificationType (juce::Justification::centred);
+//    overdriveGainLabel.attachToComponent(&overdriveGainSlider, false);
+//    overdriveGainLabel.setText("Gain", juce::dontSendNotification);
+//    overdriveGainLabel.setJustificationType (juce::Justification::centred);
+//
+//    addAndMakeVisible(&overdriveOutSlider);
+//    overdriveOutSliderAttachment.reset( new SliderAttachment(valueTreeState, "overdriveOut", overdriveOutSlider));
+//    overdriveOutSlider.setSliderStyle (juce::Slider::Rotary);
+//    overdriveOutSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
+//    overdriveOutSlider.setNumDecimalPlacesToDisplay(3);
+//    overdriveOutLabel.attachToComponent(&overdriveOutSlider, false);
+//    overdriveOutLabel.setText("Out Level", juce::dontSendNotification);
+//    overdriveOutLabel.setJustificationType (juce::Justification::centred);
     
     addAndMakeVisible(&overdrivePlacementComboBox);
     overdrivePlacementComboBox.addItem("Input", 1);
@@ -244,36 +244,86 @@ SjfRecklessDelayAudioProcessorEditor::SjfRecklessDelayAudioProcessorEditor (SjfR
     lfoRSlider.setRange(0.0001, 20);
     lfoRSlider.setSkewFactor(0.3);
     lfoRSlider.setTextValueSuffix("Hz");
+    modulationLabel1.attachToComponent(&lfoRSlider, false);
+    modulationLabel1.setText("LFO Rate", juce::dontSendNotification);
+    modulationLabel1.setJustificationType (juce::Justification::centred);
+
     
     addAndMakeVisible(&lfoDSlider);
     lfoDSliderAttachment.reset( new SliderAttachment(valueTreeState, "lfoDepth", lfoDSlider));
     lfoDSlider.setSliderStyle (juce::Slider::Rotary);
     lfoDSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
-    lfoDSlider.setRange(0, 10);
-    lfoDSlider.setSkewFactor(0.2);
-    
-    
+    lfoDSlider.setTextValueSuffix("%");
+    modulationLabel2.attachToComponent(&lfoDSlider, false);
+    modulationLabel2.setText("LFO Depth", juce::dontSendNotification);
+    modulationLabel2.setJustificationType (juce::Justification::centred);
+
+
+    addAndMakeVisible( &interpolationTypeBox );
+    interpolationTypeBox.addItem( "linear", 1 );
+    interpolationTypeBox.addItem( "cubic", 2 );
+    interpolationTypeBox.addItem( "PD", 3 );
+    interpolationTypeBox.addItem( "4th Order", 4 );
+    interpolationTypeBox.addItem( "Godot", 5 );
+    interpolationTypeBox.addItem( "Hermite", 6 );
+    interpolationTypeBoxAttachment.reset (new juce::AudioProcessorValueTreeState::ComboBoxAttachment (valueTreeState, "interpolationType", interpolationTypeBox));
     
     startTimer(100);
     
     setSize (potSize*5 + indent*4, potSize*3 + textHeight*5 + indent);
 }
 
-SjfRecklessDelayAudioProcessorEditor::~SjfRecklessDelayAudioProcessorEditor()
+SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 {
     setLookAndFeel (nullptr);
 }
 
 //==============================================================================
 
-void SjfRecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
+void SjfWrecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+//    // (Our component is opaque, so we must completely fill the background with a solid colour)
+//    auto backColour = juce::Colours::darkgrey;
+//    g.fillAll ( backColour );
+//
+//    static constexpr int NUM_RAND_BOXES = 70;
+//    static constexpr auto randomColours = sjf_matrixOfRandomFloats< float, NUM_RAND_BOXES, 4 >();
+//    static constexpr auto randomCoordinates = sjf_matrixOfRandomFloats< float, NUM_RAND_BOXES, 5 >();
+//    static constexpr auto CORNER_SIZE = 5;
+//
+//    for ( int i = 0; i < NUM_RAND_BOXES; i++)
+//    {
+//        int red = randomColours.getValue(i, 0) * 255;
+//        int green = randomColours.getValue(i, 1)  * 255;
+//        int blue = randomColours.getValue(i, 2) * 255;
+//        float alpha = randomColours.getValue(i, 3) * 0.3;
+//        auto randColour = juce::Colour( red, green, blue );
+//        randColour = randColour.withAlpha(alpha);
+//        g.setColour( randColour );
+//
+//        auto x = randomCoordinates.getValue( i, 0 ) * getWidth()*1.5;// - getWidth();
+//        auto y = randomCoordinates.getValue( i, 1 ) * getHeight()*1.5;// - getHeight();
+//        auto w = randomCoordinates.getValue( i, 2 ) * getWidth();
+//        auto h = randomCoordinates.getValue( i, 3 ) * getHeight();
+//        auto rectRand = juce::Rectangle<float>( x, y, w, h );
+//        auto rotate = randomCoordinates.getValue( i, 4 ) * M_PI*2;
+//        auto shearX = randomCoordinates.getValue( i, 5 );
+//        auto shearY = randomCoordinates.getValue( i, 6 );
+//        DBG(" rotate " << rotate << " " << shearX << " " << shearY );
+//        auto rotation = juce::AffineTransform::rotation( rotate, rectRand.getX(), rectRand.getY() );
+//        auto shear = juce::AffineTransform::shear(shearX, shearY);
+//        juce::Path path;
+//        path.addRoundedRectangle( rectRand, CORNER_SIZE );
+//        path.applyTransform( shear );
+//        g.fillPath(path, rotation );
+//    }
 
+    juce::Rectangle<int> r = getLocalBounds();
+    sjf_makeBackground< 20 >( g, r );
+    
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText("sjf_recklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("sjf_wrecklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
     g.setColour (delayTimeBackgroundColour);
     g.fillRect(delTLLabel.getX(), delTLLabel.getY(), delTRLabel.getRight()-delTLLabel.getX(), hostSyncButton.getBottom()- delTLLabel.getY());
 
@@ -287,7 +337,7 @@ void SjfRecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillRect(lpCutOffLabel.getX(), lpCutOffLabel.getY(), hpCutOffSlider.getRight() - lpCutOffLabel.getX() , hpCutOffSlider.getBottom() - lpCutOffLabel.getY());
     
     g.setColour(overdriveBackgroundColour);
-    g.fillRect(overdriveOnButton.getX(), overdriveOnButton.getY(), overdriveOutSlider.getRight() - overdriveOnButton.getX() , overdriveOutSlider.getBottom() - overdriveOnButton.getY());
+    g.fillRect(overdriveOnButton.getX(), overdriveOnButton.getY(), overdrivePlacementComboBox.getRight() - overdriveOnButton.getX() , overdriveGainSlider.getBottom() - overdriveOnButton.getY());
 
     g.setColour(lfoBackgroundColour);
     g.fillRect(lfoDSlider.getX(), lfoDSlider.getY(), lfoRSlider.getRight() - lfoDSlider.getX() , lfoRSlider.getBottom() - lfoDSlider.getY());
@@ -300,7 +350,7 @@ void SjfRecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
     
 }
 
-void SjfRecklessDelayAudioProcessorEditor::resized()
+void SjfWrecklessDelayAudioProcessorEditor::resized()
 {
     delTLSlider.setBounds(indent, textHeight*2, potSize, potSize);
     delTRSlider.setBounds(delTLSlider.getX()+potSize, delTLSlider.getY(), potSize, potSize);
@@ -327,27 +377,28 @@ void SjfRecklessDelayAudioProcessorEditor::resized()
     
     //==============================================================================
     
-    lpCutOffSlider.setBounds(delTRSlider.getX()+delTRSlider.getWidth() + indent, delTRSlider.getY(), potSize, potSize);
+    lpCutOffSlider.setBounds(delTRSlider.getRight() + indent, delTRSlider.getY(), potSize, potSize);
     hpCutOffSlider.setBounds(lpCutOffSlider.getX()+lpCutOffSlider.getWidth(), lpCutOffSlider.getY(), potSize, potSize);
     
     overdriveOnButton.setBounds(lpCutOffSlider.getX(), indent + lpCutOffSlider.getY()+ lpCutOffSlider.getHeight(), potSize, textHeight);
     overdrivePlacementComboBox.setBounds(overdriveOnButton.getX() + overdriveOnButton.getWidth(), overdriveOnButton.getY(), potSize, textHeight);
-    overdriveGainSlider.setBounds(overdriveOnButton.getX(), overdriveOnButton.getY() + overdriveOnButton.getHeight() + textHeight, potSize, potSize);
-    overdriveOutSlider.setBounds(overdriveGainSlider.getX()  + overdriveGainSlider.getWidth(), overdriveGainSlider.getY(), potSize, potSize);
+    overdriveGainSlider.setBounds(overdriveOnButton.getX(), overdriveOnButton.getBottom(), potSize*2, potSize);
+//    overdriveOutSlider.setBounds(overdriveGainSlider.getX()  + overdriveGainSlider.getWidth(), overdriveGainSlider.getY(), potSize, potSize);
     
-    lfoDSlider.setBounds(overdriveGainSlider.getX(), indent + overdriveGainSlider.getY()+overdriveGainSlider.getHeight(), potSize, potSize);
+    lfoDSlider.setBounds(overdriveGainSlider.getX(), indent*3 + overdriveGainSlider.getBottom(), potSize, potSize);
     lfoRSlider.setBounds(lfoDSlider.getX()+lfoDSlider.getWidth(), lfoDSlider.getY(), potSize, potSize);
     
     //==============================================================================
     
-    drySlider.setBounds(hpCutOffSlider.getX() + hpCutOffSlider.getWidth() + indent , textHeight*2, potSize, potSize*1.5);
+    drySlider.setBounds(hpCutOffSlider.getX() + hpCutOffSlider.getWidth() + indent , textHeight*2, potSize, potSize*1.25);
     wetSlider.setBounds(drySlider.getX(), drySlider.getY()+drySlider.getHeight()+textHeight + indent, potSize, drySlider.getHeight());
-    clearDelayLineButton.setBounds(drySlider.getX(), wetSlider.getY()+wetSlider.getHeight()+indent, potSize, textHeight);
+    interpolationTypeBox.setBounds(drySlider.getX(), wetSlider.getBottom()+indent, potSize, textHeight);
+    clearDelayLineButton.setBounds(interpolationTypeBox.getX(), interpolationTypeBox.getBottom()+indent, potSize, textHeight);
 }
 
 
 
-void SjfRecklessDelayAudioProcessorEditor::timerCallback(){
+void SjfWrecklessDelayAudioProcessorEditor::timerCallback(){
     if(audioProcessor.getSyncState()){
         delTLSlider.setVisible(false);
         delTRSlider.setVisible(false);

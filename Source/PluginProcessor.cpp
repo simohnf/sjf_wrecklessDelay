@@ -10,7 +10,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-SjfRecklessDelayAudioProcessor::SjfRecklessDelayAudioProcessor()
+SjfWrecklessDelayAudioProcessor::SjfWrecklessDelayAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -21,37 +21,12 @@ SjfRecklessDelayAudioProcessor::SjfRecklessDelayAudioProcessor()
                      #endif
                        )
 #endif
-, parameters(*this, nullptr, juce::Identifier("sjfRecklessDelay"),
-    {
-        std::make_unique<juce::AudioParameterFloat> ("dry", "Dry", 0.0f, 100.0f, 100.0f),
-        std::make_unique<juce::AudioParameterFloat> ("wet", "Wet", 0.0f, 100.0f, 80.0f),
-        std::make_unique<juce::AudioParameterFloat> ("timeLeft", "TimeLeft", 0.0f, 2000.0f, 500.0f),
-        std::make_unique<juce::AudioParameterFloat> ("timeRight", "TimeRight", 0.0f, 2000.0f, 500.0f),
-        std::make_unique<juce::AudioParameterFloat> ("fbL", "FbL", 0.0f, 200.0f, 40.0f),
-        std::make_unique<juce::AudioParameterFloat> ("fbR", "FbR", 0.0f, 200.0f, 40.0f),
-        std::make_unique<juce::AudioParameterFloat> ("detuneL", "DetuneL", -100.0f, 100.0f, 0.0f),
-        std::make_unique<juce::AudioParameterFloat> ("detuneR", "DetuneL", -100.0f, 100.0f, 0.0f),
-        std::make_unique<juce::AudioParameterBool> ("link", "Link", false),
-        std::make_unique<juce::AudioParameterBool> ("sync", "Sync", false),
-        std::make_unique<juce::AudioParameterInt> ("syncValL", "SyncValL", 1, 5, 2 ),
-        std::make_unique<juce::AudioParameterInt> ("syncValR", "SyncValR", 1, 5, 2 ),
-        std::make_unique<juce::AudioParameterInt> ("syncValLType", "SyncValLType", 1, 3, 2 ),
-        std::make_unique<juce::AudioParameterInt> ("syncValRType", "SyncValRType", 1, 3, 2 ),
-        std::make_unique<juce::AudioParameterFloat> ("syncValLOffset", "SyncValLOffset", -33.33f, 33.33f, 0.0f ),
-        std::make_unique<juce::AudioParameterFloat> ("syncValROffset", "SyncValROffset", -33.33f, 33.33f, 0.0f ),
-        std::make_unique<juce::AudioParameterBool> ("fbLink", "FbLink", false),
-        std::make_unique<juce::AudioParameterBool> ("fbControl", "FbControl", false),
-        std::make_unique<juce::AudioParameterFloat> ("lpCutOff", "LpCutOf", 100.0f, 20000.0f, 20000.0f ),
-        std::make_unique<juce::AudioParameterFloat> ("hpCutOff", "HpCutOf", 20.0f, 10000.0f, 20.0f ),
-        std::make_unique<juce::AudioParameterBool> ("overdriveOn", "OverdriveOn", false),
-        std::make_unique<juce::AudioParameterFloat> ("overdriveGain", "OverdriveGain", 1.0f, 10.0f, 1.0f ),
-        std::make_unique<juce::AudioParameterFloat> ("overdriveOut", "OverdriveOut", 0.0f, 1.0f, 1.0f ),
-        std::make_unique<juce::AudioParameterInt> ("overdrivePlacement", "OverdrivePlacement", 1, 3, 1 ),
-        std::make_unique<juce::AudioParameterFloat> ("lfoRate", "LfoRate", 0.001f, 20.0f, 1.0f ),
-        std::make_unique<juce::AudioParameterFloat> ("lfoDepth", "lfoDepth", 0.0f, 10.0f, 0.0f ),
-    })
+, parameters(*this, nullptr, juce::Identifier("SjfWrecklessDelay"), createParameterLayout() )
 {
-    delayLine.intialise( getSampleRate(), getTotalNumInputChannels(), getTotalNumOutputChannels(), getBlockSize() );
+    DBG( "inside construtor");
+//    delayLine.intialise( getSampleRate(), getTotalNumInputChannels(), getTotalNumOutputChannels(), getBlockSize() );
+    
+    
     
     dryParameter = parameters.getRawParameterValue("dry");
     wetParameter = parameters.getRawParameterValue("wet");
@@ -75,24 +50,80 @@ SjfRecklessDelayAudioProcessor::SjfRecklessDelayAudioProcessor()
     hpCutOffParameter = parameters.getRawParameterValue("hpCutOff");
     overdriveFlagParameter = parameters.getRawParameterValue("overdriveOn");
     overdriveGainParameter = parameters.getRawParameterValue("overdriveGain");
-    overdriveOutParameter = parameters.getRawParameterValue("overdriveOut");
+//    overdriveOutParameter = parameters.getRawParameterValue("overdriveOut");
     overdrivePlacementParameter = parameters.getRawParameterValue("overdrivePlacement");
     lfoRateParameter = parameters.getRawParameterValue("lfoRate");
     lfoDepthParameter = parameters.getRawParameterValue("lfoDepth");
+    interpolationTypeParameter = parameters.getRawParameterValue("interpolationType");
 
+    initialise( getSampleRate() );
 }
 
-SjfRecklessDelayAudioProcessor::~SjfRecklessDelayAudioProcessor()
+SjfWrecklessDelayAudioProcessor::~SjfWrecklessDelayAudioProcessor()
 {
 }
 
+void SjfWrecklessDelayAudioProcessor::initialise( int sampleRate )
+{
+    if (sampleRate == 0){ sampleRate = 44100; }
+    DBG("INITIALISING");
+    static constexpr float RAMP_LENGTH = 0.005f;
+    auto skewVal = calculateLPFCoefficient< float > ( 1, sampleRate );
+    //--------------------------------------------------
+    static constexpr float WINDOW_SIZE = 50;
+    for ( int i = 0; i < NUM_CHANNELS; i++ )
+    {
+        m_pitchShifter[ i ].initialise( sampleRate, WINDOW_SIZE );
+        m_delayLine[ i ].initialise( sampleRate * 4 );
+        
+//        m_fbSmoother[ i ].setCutoff( skewVal );
+//        m_delayTimeSmoother[ i ].setCutoff( skewVal );
+        
+        DBG("SET DELAY SMOOTHER");
+        m_delayTimeSmoothers[ i ].reset( sampleRate, RAMP_LENGTH*20.0f );
+        
+        m_fbSmoothers[ i ].reset( sampleRate, RAMP_LENGTH );
+    }
+    
+    m_modPhasor.initialise( getSampleRate(), 1 );
+    //--------------------------------------------------
+    
+    overdriveGain.reset(sampleRate, RAMP_LENGTH);
+    overdriveGain.setCurrentAndTargetValue(*overdriveGainParameter);
+//    overdriveOut.reset(sampleRate, RAMP_LENGTH);
+//    overdriveOut.setCurrentAndTargetValue(*overdriveOutParameter);
+    
+    
+    lfoD.reset(sampleRate, RAMP_LENGTH);
+    lfoD.setCurrentAndTargetValue(*lfoDepthParameter * 0.01f );
+    lfoR.reset(sampleRate, RAMP_LENGTH);
+    lfoR.setCurrentAndTargetValue(*lfoRateParameter);
+    
+    dry.reset(sampleRate, RAMP_LENGTH);
+    dry.setCurrentAndTargetValue(*dryParameter);
+    
+    wet.reset(sampleRate, RAMP_LENGTH);
+    wet.setCurrentAndTargetValue(*wetParameter);
+    
+//    fbL.reset(sampleRate, RAMP_LENGTH);
+//    fbL.setCurrentAndTargetValue(*fbLParameter);
+//    fbR.reset(sampleRate, RAMP_LENGTH);
+//    fbR.setCurrentAndTargetValue(*fbRParameter);
+    
+    lpCutOff.reset(sampleRate, RAMP_LENGTH);
+    lpCutOff.setCurrentAndTargetValue(*lpCutOffParameter);
+    hpCutOff.reset(sampleRate, RAMP_LENGTH);
+    hpCutOff.setCurrentAndTargetValue(*hpCutOffParameter);
+    
+    DBG("INITIALISED");
+}
 //==============================================================================
-const juce::String SjfRecklessDelayAudioProcessor::getName() const
+const juce::String SjfWrecklessDelayAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool SjfRecklessDelayAudioProcessor::acceptsMidi() const
+bool SjfWrecklessDelayAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -101,7 +132,7 @@ bool SjfRecklessDelayAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool SjfRecklessDelayAudioProcessor::producesMidi() const
+bool SjfWrecklessDelayAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -110,7 +141,7 @@ bool SjfRecklessDelayAudioProcessor::producesMidi() const
    #endif
 }
 
-bool SjfRecklessDelayAudioProcessor::isMidiEffect() const
+bool SjfWrecklessDelayAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -119,93 +150,50 @@ bool SjfRecklessDelayAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double SjfRecklessDelayAudioProcessor::getTailLengthSeconds() const
+double SjfWrecklessDelayAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int SjfRecklessDelayAudioProcessor::getNumPrograms()
+int SjfWrecklessDelayAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int SjfRecklessDelayAudioProcessor::getCurrentProgram()
+int SjfWrecklessDelayAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void SjfRecklessDelayAudioProcessor::setCurrentProgram (int index)
+void SjfWrecklessDelayAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const juce::String SjfRecklessDelayAudioProcessor::getProgramName (int index)
+const juce::String SjfWrecklessDelayAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void SjfRecklessDelayAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void SjfWrecklessDelayAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void SjfRecklessDelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void SjfWrecklessDelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    dry.reset(sampleRate, 0.005);
-    dry.setCurrentAndTargetValue(*dryParameter);
-    
-    wet.reset(sampleRate, 0.005);
-    wet.setCurrentAndTargetValue(*wetParameter);
-    
-    fbL.reset(sampleRate, 0.005);
-    fbL.setCurrentAndTargetValue(*fbLParameter);
-    fbR.reset(sampleRate, 0.005);
-    fbR.setCurrentAndTargetValue(*fbRParameter);
-    
-    lpCutOff.reset(sampleRate, 0.005);
-    lpCutOff.setCurrentAndTargetValue(*lpCutOffParameter);
-    hpCutOff.reset(sampleRate, 0.005);
-    hpCutOff.setCurrentAndTargetValue(*hpCutOffParameter);
-    
-    juce::dsp::ProcessSpec spec;
-    spec.maximumBlockSize = samplesPerBlock;
-    spec.numChannels = 2; // only stereo
-    spec.sampleRate = sampleRate;
-    
-    lowpass.prepare(spec);
-    lowpass.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
-    hipass.prepare(spec);
-    hipass.setType(juce::dsp::StateVariableTPTFilterType::highpass);
-    
-    lowpass2.prepare(spec);
-    lowpass2.setType(juce::dsp::StateVariableTPTFilterType::lowpass);
-    hipass2.prepare(spec);
-    hipass2.setType(juce::dsp::StateVariableTPTFilterType::highpass);
-    
-    overdriveGain.reset(sampleRate, 0.005);
-    overdriveGain.setCurrentAndTargetValue(*overdriveGainParameter);
-    overdriveOut.reset(sampleRate, 0.005);
-    overdriveOut.setCurrentAndTargetValue(*overdriveOutParameter);
-    
-    
-    lfoD.reset(sampleRate, 0.005);
-    lfoD.setCurrentAndTargetValue(*lfoDepthParameter);
-    lfoR.reset(sampleRate, 0.005);
-    lfoR.setCurrentAndTargetValue(*lfoRateParameter);
-    
-    lfo.initialise(sampleRate, lfoR.getCurrentValue());
-    
-    reset();
+
+    initialise( sampleRate );
 }
 
-void SjfRecklessDelayAudioProcessor::releaseResources()
+void SjfWrecklessDelayAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool SjfRecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool SjfWrecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
@@ -226,7 +214,7 @@ bool SjfRecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout& 
 }
 #endif
 
-void SjfRecklessDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void SjfWrecklessDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -248,89 +236,96 @@ void SjfRecklessDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
     
     checkParameters( bufferSize );
     
-
-    tempBuffer.makeCopyOf( buffer );
-
-    // this is just so I can prevent any noise in input
-    auto block = juce::dsp::AudioBlock<float> (tempBuffer);
-    auto contextIn = juce::dsp::ProcessContextReplacing<float> (block);
-    lowpass.setCutoffFrequency(20000.0f);
-    lowpass.process( contextIn );
-    hipass.setCutoffFrequency(20.0f);
-    hipass.process( contextIn );
-
-    if (!overdriveFlag)
+    static constexpr int TABLE_SIZE = 4096;
+    static constexpr int MOD_OFFSET = TABLE_SIZE / NUM_CHANNELS;
+    static constexpr auto sinWavetable = sinArray< float, TABLE_SIZE >();
+    float delayed = 0, inSamp, drySmoothed, wetSmoothed, postFBval, dt, hpfCutoffSmoothed, lpfCutoffSmoothed, modFactor, driveFactor, phasorOut;
+    for ( int indexThroughBuffer = 0; indexThroughBuffer < bufferSize; indexThroughBuffer++ )
     {
-        overdriveGain.setCurrentAndTargetValue( overdriveGain.getTargetValue() ) ;
-        overdriveOut.setCurrentAndTargetValue( overdriveOut.getTargetValue() );
-    }
-
-    if(*overdrivePlacementParameter == 1 && overdriveFlag)
-    {
-        overdrive.drive( tempBuffer, overdriveGain.getNextValue() );
-        for (int channel = 0; channel < tempBuffer.getNumChannels(); channel++)
+        drySmoothed = dry.getNextValue();
+        wetSmoothed = wet.getNextValue();
+        hpfCutoffSmoothed = hpCutOff.getNextValue();
+        lpfCutoffSmoothed = lpCutOff.getNextValue();
+        
+        float d = lfoD.getNextValue();
+        m_modPhasor.setFrequency( lfoR.getNextValue() );
+        phasorOut = m_modPhasor.output() * TABLE_SIZE;
+        
+        
+        driveFactor = overdriveGain.getNextValue();
+        
+        for ( int channel = 0; channel < NUM_CHANNELS; channel++ )
         {
-            tempBuffer.applyGain( channel, 0, tempBuffer.getNumSamples(), overdriveOut.getNextValue() );
+            inSamp = buffer.getSample( channel, indexThroughBuffer );
+            // set delay time
+            dt = m_delayTimeSmoothers[ channel ].getNextValue();
+            phasorOut += channel * MOD_OFFSET;
+            fastMod3< float >( phasorOut, TABLE_SIZE );
+            modFactor = sinWavetable.getValue( phasorOut ) * d;
+//            DBG( modFactor );
+            dt += ( dt * modFactor );
+            m_delayLine[ channel ].setDelayTimeSamps( dt );
+            // read from delay with pitchShift
+            delayed = m_delayLine[ channel ].getSample2();
+            if ( m_detune[ channel ] != 1 )
+            {
+                m_pitchShifter[ channel ].setSample( delayed );
+                delayed = m_pitchShifter[ channel ].pitchShiftOutput( m_detune[ channel ] );
+            }
+            // apply overdrive
+            // filter
+            if( overdriveFlag && *overdrivePlacementParameter == 2)
+            { // drive before filters
+                sjf_drive< float >::driveInPlace( delayed, driveFactor );
+            }
+            m_lpf[ channel ].setCutoff( lpfCutoffSmoothed );
+            m_lpf[ channel ].filterInPlace( delayed );
+            m_hpf[ channel ].setCutoff( hpfCutoffSmoothed );
+            m_hpf[ channel ].filterInPlaceHP( delayed );
+            postFBval = delayed * m_fbSmoothers[ channel ].getNextValue();
+//            postFBval = delayed * m_fbSmoother[ channel ].filterInput( m_fb[ channel ] );
+            if (fbControlFlag)
+            { postFBval = juce::dsp::FastMathApproximations::tanh( postFBval ); }
+            // add delayed output (with feedback) to dry input and write to delay
+            if ( !overdriveFlag || *overdrivePlacementParameter != 1 )
+            { m_delayLine[ channel ].setSample2( postFBval + inSamp ); }
+            else
+            { // drive input into delayline
+                m_delayLine[ channel ].setSample2( sjf_drive< float >::driveInput( inSamp, driveFactor) + postFBval );
+            }
+
+            if( overdriveFlag && *overdrivePlacementParameter == 3)
+            { // drive before output
+                sjf_drive< float >::driveInPlace( delayed, driveFactor );
+            }
+            // copy delayed signal to buffer
+            delayed *= wetSmoothed;
+            inSamp *= drySmoothed;
+            buffer.setSample( channel, indexThroughBuffer, delayed + inSamp );
         }
     }
-    delayLine.writeToDelayBuffer( tempBuffer, 1.0f ); // write dry signal to delay line
-    
-    tempBuffer.clear( );
-
-    delayLine.copyFromDelayBufferWithPitchShift(tempBuffer, 1.0f, detuneL/100.0f, detuneR/100.0f);
-    
-    if(*overdrivePlacementParameter == 2 && overdriveFlag)
-    {
-        overdrive.drive( tempBuffer, overdriveGain.getNextValue() );
-        for (int channel = 0; channel < tempBuffer.getNumChannels(); channel++)
-        {
-            tempBuffer.applyGain( channel, 0, tempBuffer.getNumSamples(), overdriveOut.getNextValue() );
-        }
-    }
-    // process delayLineOutput(tempBuffer) here
-    if(fbControlFlag){ overdrive.drive(tempBuffer, 1.0f); }
-    filterSignal(tempBuffer);
-    
-    delayLine.addToDelayBuffer( tempBuffer, fbL.getNextValue() / 100.0f, fbR.getNextValue() / 100.0f ); // apply feedback level and add back into delay buffer
-    
-    buffer.applyGain(0, bufferSize, dry.getNextValue() / 100.0f); // apply dry level
-    
-    if(*overdrivePlacementParameter == 3 && overdriveFlag)
-    {
-        overdrive.drive( tempBuffer, overdriveGain.getNextValue() );
-        for (int channel = 0; channel < tempBuffer.getNumChannels(); channel++)
-        {
-            tempBuffer.applyGain( channel, 0, tempBuffer.getNumSamples(), overdriveOut.getNextValue() );
-        }
-    }
-    tempBuffer.applyGain( 0, bufferSize, wet.getNextValue() / 100.0f ); // apply wet level here
-    
-    for (int channel = 0; channel < buffer.getNumChannels(); channel ++)
-    { buffer.addFrom( channel, 0, tempBuffer, channel, 0, bufferSize ) ; } // add delay output to buffer
-    
-    delayLine.updateBufferPositions( buffer.getNumSamples() );
 }
 
 //==============================================================================
-bool SjfRecklessDelayAudioProcessor::hasEditor() const
+bool SjfWrecklessDelayAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-juce::AudioProcessorEditor* SjfRecklessDelayAudioProcessor::createEditor()
+juce::AudioProcessorEditor* SjfWrecklessDelayAudioProcessor::createEditor()
 {
-    return new SjfRecklessDelayAudioProcessorEditor (*this, parameters);
+    return new SjfWrecklessDelayAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================
-void SjfRecklessDelayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void SjfWrecklessDelayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
     auto state = parameters.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
     copyXmlToBinary (*xml, destData);
 }
 
-void SjfRecklessDelayAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void SjfWrecklessDelayAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState.get() != nullptr)
@@ -340,139 +335,105 @@ void SjfRecklessDelayAudioProcessor::setStateInformation (const void* data, int 
 }
 
 
-void SjfRecklessDelayAudioProcessor::checkParameters( int bufferSize )
+void SjfWrecklessDelayAudioProcessor::checkParameters( int bufferSize )
 {
-
-    if (dry.getTargetValue() != *dryParameter){
-        dry.setTargetValue( *dryParameter );
-    }
-    if (wet.getTargetValue() != *wetParameter){
-        wet.setTargetValue( *wetParameter );
-    }
+    dry.setTargetValue( *dryParameter * 0.01f );
+    wet.setTargetValue( *wetParameter * 0.01f );
 
     filterParameters();
     overdriveParameters();
 
-    auto delTimeMod = lfoParametersAndCalculations( bufferSize );
-    delayTimeCalculations( delTimeMod );
+    lfoParametersAndCalculations( );
+    delayTimeCalculations( );
     feedbackParameters();
     detuneParameters();
+    
+    for ( int i = 0; i < NUM_CHANNELS; i++ )
+    {
+        m_delayLine[ i ].setInterpolationType( *interpolationTypeParameter );
+        m_pitchShifter[ i ].setInterpolationType( *interpolationTypeParameter );
+    }
 }
 
-void SjfRecklessDelayAudioProcessor::detuneParameters(){
-    detuneL = *detuneLParameter;
-    detuneR = *detuneRParameter;
+void SjfWrecklessDelayAudioProcessor::detuneParameters()
+{
+    static constexpr float transpositionConversion = 0.01f/12.0f;
+    m_detune[ 0 ] = std::pow(2, *detuneLParameter * transpositionConversion );
+    m_detune[ 1 ] = std::pow(2, *detuneRParameter * transpositionConversion );
 }
 
-void SjfRecklessDelayAudioProcessor::overdriveParameters()
+void SjfWrecklessDelayAudioProcessor::overdriveParameters()
 {
     overdriveFlag = *overdriveFlagParameter;
-    if (overdriveGain.getTargetValue() != *overdriveGainParameter){
-        overdriveGain.setTargetValue( *overdriveGainParameter );
-    }
-    if (overdriveOut.getTargetValue() != *overdriveOutParameter){
-        overdriveOut.setTargetValue( *overdriveOutParameter) ;
-    }
+
+    overdriveGain.setTargetValue( *overdriveGainParameter );
+//    overdriveOut.setTargetValue( *overdriveOutParameter) ;
 }
 
-void SjfRecklessDelayAudioProcessor::feedbackParameters()
+void SjfWrecklessDelayAudioProcessor::feedbackParameters()
 {
     fbControlFlag = *fbControlParameter;
     fbLinkFlag = *fbLinkParameter;
-    if (fbLinkFlag){
-        if (fbL.getTargetValue() != *fbLParameter){
-            fbL.setTargetValue( *fbLParameter );
-        }
-        if (fbR.getTargetValue() != *fbLParameter){
-            fbR.setTargetValue( *fbLParameter );
-        }
+    if (fbLinkFlag)
+    {
+        for ( int i = 0; i < NUM_CHANNELS; i++ )
+        { m_fbSmoothers[ i ].setTargetValue( *fbLParameter / 100.0f ); }
     }
-    else if (!fbLinkFlag){
-        if (fbL.getTargetValue() != *fbLParameter){
-            fbL.setTargetValue( *fbLParameter );
-        }
-        if (fbR.getTargetValue() != *fbRParameter){
-            fbR.setTargetValue( *fbRParameter );
-        }
+    else if (!fbLinkFlag)
+    {
+        m_fbSmoothers[ 0 ].setTargetValue( *fbLParameter / 100.0f );
+        m_fbSmoothers[ 1 ].setTargetValue( *fbRParameter / 100.0f );
     }
 }
 
-void SjfRecklessDelayAudioProcessor::filterParameters()
+void SjfWrecklessDelayAudioProcessor::filterParameters()
 {
-    if (lpCutOff.getTargetValue() != *lpCutOffParameter){
-        lpCutOff.setTargetValue(*lpCutOffParameter);
-    }
-    if (hpCutOff.getTargetValue() != *hpCutOffParameter){
-        hpCutOff.setTargetValue(*hpCutOffParameter);
-    }
+    hpCutOff.setTargetValue( calculateLPFCoefficient< float >( *hpCutOffParameter, getSampleRate() ) );
+    lpCutOff.setTargetValue( calculateLPFCoefficient< float >( *lpCutOffParameter, getSampleRate() ) );
 }
 
-float SjfRecklessDelayAudioProcessor::lfoParametersAndCalculations(int bufferSize)
+void SjfWrecklessDelayAudioProcessor::lfoParametersAndCalculations( )
 {
-    if(lfoD.getTargetValue() != *lfoDepthParameter){
-        lfoD.setTargetValue(*lfoDepthParameter);
-    }
-    if(lfoR.getTargetValue() != *lfoRateParameter){
-        lfoR.setTargetValue(*lfoRateParameter);
-    }
-    lfo.setFrequency( lfoR.getNextValue() );
-    return lfo.outputSample( bufferSize ) * lfoD.getNextValue()/100.0f;
+    lfoD.setTargetValue(*lfoDepthParameter * 0.01f );
+    lfoR.setTargetValue( *lfoRateParameter );
 }
 
-void SjfRecklessDelayAudioProcessor::delayTimeCalculations(float delTimeMod)
+void SjfWrecklessDelayAudioProcessor::delayTimeCalculations( )
 {
     linkFlag = *linkParameter;
     syncFlag = *syncParameter;
     
-    if (!syncFlag && !linkFlag){
-        float delT = *delTLParameter;
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeL() != delT){
-            delayLine.setDelTimeL(delT);
-        }
-        delT = *delTRParameter;
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeR() != delT){
-            delayLine.setDelTimeR( delT );
-        }
+    if (!syncFlag && !linkFlag)
+    {
+        m_delayTimeSmoothers[ 0 ].setTargetValue( *delTLParameter );
+        m_delayTimeSmoothers[ 1 ].setTargetValue( *delTRParameter );
     }
-    else if (!syncFlag && linkFlag ){
-        float delT = *delTLParameter;
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeL() != delT){
-            delayLine.setDelTimeL(delT);
-        }
-        if (delayLine.getDelTimeR() != delT){
-            delayLine.setDelTimeR(delT);
-        }
+    else if (!syncFlag && linkFlag )
+    {
+        m_delayTimeSmoothers[ 0 ].setTargetValue( *delTLParameter );
+        m_delayTimeSmoothers[ 1 ].setTargetValue( *delTLParameter );
     }
-    else if (syncFlag && !linkFlag ){
-        auto delT = calculateSyncedDelayTime(*syncValLParameter, *syncValLTypeParameter, *syncValLOffsetParameter);
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeL() != delT){
-            delayLine.setDelTimeL(delT);
-        }
-        delT = calculateSyncedDelayTime(*syncValRParameter, *syncValRTypeParameter, *syncValROffsetParameter);
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeR() != delT){
-            delayLine.setDelTimeR(delT);
-        }
+    else if (syncFlag && !linkFlag )
+    {
+        m_delayTimeSmoothers[ 0 ].setTargetValue( calculateSyncedDelayTime(*syncValLParameter, *syncValLTypeParameter, *syncValLOffsetParameter) );
+        m_delayTimeSmoothers[ 1 ].setTargetValue( calculateSyncedDelayTime(*syncValRParameter, *syncValRTypeParameter, *syncValROffsetParameter) );
     }
-    else if (syncFlag && linkFlag){
-        auto delT = calculateSyncedDelayTime(*syncValLParameter, *syncValLTypeParameter, *syncValLOffsetParameter);
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeL() != delT){
-            delayLine.setDelTimeL(delT);
-        }
-        delT = calculateSyncedDelayTime(*syncValLParameter, *syncValLTypeParameter, *syncValROffsetParameter);
-        delT += delT * delTimeMod;
-        if (delayLine.getDelTimeR() != delT){
-            delayLine.setDelTimeR(delT);
-        }
+    else if (syncFlag && linkFlag)
+    {
+        m_delayTimeSmoothers[ 0 ].setTargetValue( calculateSyncedDelayTime(*syncValLParameter, *syncValLTypeParameter, *syncValLOffsetParameter) );
+        m_delayTimeSmoothers[ 1 ].setTargetValue( calculateSyncedDelayTime(*syncValLParameter, *syncValLTypeParameter, *syncValROffsetParameter) );
     }
+//    DBG( "m_delayTime[ 0 ]" << m_delayTime[ 0 ] );
+    const float scale = getSampleRate() * 0.001f;
+    m_delayTimeSmoothers[ 0 ].setTargetValue( m_delayTimeSmoothers[ 0 ].getTargetValue() * scale );
+    m_delayTimeSmoothers[ 1 ].setTargetValue( m_delayTimeSmoothers[ 1 ].getTargetValue() * scale );
+//    m_delayTime[ 0 ] *= getSampleRate() * 0.001f;
+//    m_delayTime[ 1 ] *= getSampleRate() * 0.001f;
+//    DBG( "m_delayTime[ 0 ]" << m_delayTime[ 0 ] );
 }
 
-float SjfRecklessDelayAudioProcessor::calculateSyncedDelayTime(int syncVal, int syncValType, float syncValOffset){
+float SjfWrecklessDelayAudioProcessor::calculateSyncedDelayTime(int syncVal, int syncValType, float syncValOffset)
+{
     auto del = (2*60000.0f/bpm) * pow(2, -1*(syncVal-1));
     switch(syncValType){
         case 1:
@@ -489,26 +450,60 @@ float SjfRecklessDelayAudioProcessor::calculateSyncedDelayTime(int syncVal, int 
     return del;
 }
 
-void SjfRecklessDelayAudioProcessor::filterSignal(juce::AudioBuffer<float> &buffer){
-    auto block = juce::dsp::AudioBlock<float> (buffer);
-    auto context = juce::dsp::ProcessContextReplacing<float> (block);
-    auto cof = 20000*pow(2, -1 * ( std::fmax(detuneL, detuneR) / 1200.0f ) );
-    cof = std::fmin(lpCutOff.getNextValue(), cof);
-    if (cof > 20000.0f) { cof = 20000.0f; }
-    lowpass2.setCutoffFrequency(cof);
-    lowpass2.process( context );
-    cof = 20*pow(2, -1 * ( std::fmin(detuneL, detuneR) / 1200.0f ) );
-    cof = std::fmax(hpCutOff.getNextValue(), cof);
-    if (cof < 20.0f) { cof = 20.0f; }
-    hipass2.setCutoffFrequency(cof);
-    hipass2.process( context );
+juce::AudioProcessorValueTreeState::ParameterLayout SjfWrecklessDelayAudioProcessor::createParameterLayout()
+{
+    DBG("creating parameter layout");
+    juce::AudioProcessorValueTreeState::ParameterLayout params;
+    static constexpr int pIDVersionNumber = 1;
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "dry", pIDVersionNumber }, "Dry", 0.0f, 100.0f, 100.0f) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "wet", pIDVersionNumber }, "Wet", 0.0f, 100.0f, 80.0f) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "timeLeft", pIDVersionNumber }, "TimeLeft", 0.0f, 2000.0f, 500.0f) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "timeRight", pIDVersionNumber }, "TimeRight", 0.0f, 2000.0f, 500.0f) );
+    juce::NormalisableRange < float > fbRange( 00.0f, 200.0f, 0.001f );
+    fbRange.setSkewForCentre(50);
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "fbL", pIDVersionNumber }, "FbL", fbRange, 40.0f) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "fbR", pIDVersionNumber }, "FbR", fbRange, 40.0f) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "detuneL", pIDVersionNumber }, "DetuneL", -100.0f, 100.0f, 0.0f) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "detuneR", pIDVersionNumber }, "DetuneL", -100.0f, 100.0f, 0.0f) );
+    params.add( std::make_unique<juce::AudioParameterBool> (juce::ParameterID{ "link", pIDVersionNumber }, "Link", false) );
+    params.add( std::make_unique<juce::AudioParameterBool> (juce::ParameterID{ "sync", pIDVersionNumber }, "Sync", false) );
+    params.add( std::make_unique<juce::AudioParameterInt> (juce::ParameterID{ "syncValL", pIDVersionNumber }, "SyncValL", 1, 5, 2 ) );
+    params.add( std::make_unique<juce::AudioParameterInt> (juce::ParameterID{ "syncValR", pIDVersionNumber }, "SyncValR", 1, 5, 2 ) );
+    params.add( std::make_unique<juce::AudioParameterInt> (juce::ParameterID{ "syncValLType", pIDVersionNumber }, "SyncValLType", 1, 3, 2 ) );
+    params.add( std::make_unique<juce::AudioParameterInt> (juce::ParameterID{ "syncValRType", pIDVersionNumber }, "SyncValRType", 1, 3, 2 ) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "syncValLOffset", pIDVersionNumber }, "SyncValLOffset", -33.33f, 33.33f, 0.0f ) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "syncValROffset", pIDVersionNumber }, "SyncValROffset", -33.33f, 33.33f, 0.0f ) );
+    params.add( std::make_unique<juce::AudioParameterBool> (juce::ParameterID{ "fbLink", pIDVersionNumber }, "FbLink", false) );
+    params.add( std::make_unique<juce::AudioParameterBool> (juce::ParameterID{ "fbControl", pIDVersionNumber }, "FbControl", false) );
+    juce::NormalisableRange< float > lpCutoffRange( 100.0f, 20000.0f, 0.001f);
+    lpCutoffRange.setSkewForCentre(1000);
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "lpCutOff", pIDVersionNumber }, "LpCutOf", lpCutoffRange, 20000.0f ) );
+    juce::NormalisableRange< float > hpCutoffRange( 20.0f, 10000.0f, 0.001f);
+    hpCutoffRange.setSkewForCentre(500);
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "hpCutOff", pIDVersionNumber }, "HpCutOf", hpCutoffRange, 20.0f ) );
+    params.add( std::make_unique<juce::AudioParameterBool> (juce::ParameterID{ "overdriveOn", pIDVersionNumber }, "OverdriveOn", false) );
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "overdriveGain", pIDVersionNumber }, "OverdriveGain", 0.00001f, 5.0f, 0.5f ) );
+//    params.add( std::make_unique<juce::AudioParameterFloat> ("overdriveOut", "OverdriveOut", 0.0f, 1.0f, 1.0f ) );
+    params.add( std::make_unique<juce::AudioParameterInt> (juce::ParameterID{ "overdrivePlacement", pIDVersionNumber }, "OverdrivePlacement", 1, 3, 1 ) );
+    juce::NormalisableRange< float > lfoRateRange( 0.0001f, 20.0f, 0.001f);
+    lfoRateRange.setSkewForCentre(0.7f);
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "lfoRate", pIDVersionNumber }, "LfoRate", lfoRateRange, 1.0f ) );
+    juce::NormalisableRange< float > lfoDepthRange( 0.0f, 10.0f, 0.001f);
+    lfoDepthRange.setSkewForCentre(0.5f);
+    params.add( std::make_unique<juce::AudioParameterFloat> (juce::ParameterID{ "lfoDepth", pIDVersionNumber }, "lfoDepth", lfoDepthRange, 0.0f ) );
+    
+    
+    params.add( std::make_unique<juce::AudioParameterInt> (juce::ParameterID{ "interpolationType", pIDVersionNumber }, "InterpolationType", 1, 6, 1) );
+    
+    return params;
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new SjfRecklessDelayAudioProcessor();
+    return new SjfWrecklessDelayAudioProcessor();
 }
 
 
