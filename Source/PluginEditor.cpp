@@ -272,10 +272,10 @@ SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 void SjfWrecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
 
-//    juce::Rectangle<int> r = getLocalBounds();
-//    sjf_makeBackground< 20 >( g, r );
+    juce::Rectangle<int> r = getLocalBounds();
+    sjf_makeBackground< 40 >( g, r );
 
-    sjf_drawBackgroundImage( g, m_backgroundImage, getWidth(), getHeight() );
+//    sjf_drawBackgroundImage( g, m_backgroundImage, getWidth(), getHeight() );
     
     
     
