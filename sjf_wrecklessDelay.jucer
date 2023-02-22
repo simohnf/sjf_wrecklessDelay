@@ -5,6 +5,18 @@
               version="0.0.2" pluginManufacturer="sjf" pluginName="sjf_wrecklessDelay"
               pluginDesc="sjf_wrecklessDelay" pluginFormats="buildAU,buildVST3">
   <MAINGROUP id="PVCiWb" name="sjf_wrecklessDelay">
+    <GROUP id="{59E2F247-ED66-440D-5BAD-95113BEC012F}" name="New Group">
+      <FILE id="T8qu9C" name="primes1.png" compile="0" resource="1" file="../sjf_audio/algoImages/primes1.png"
+            xcodeResource="1"/>
+      <FILE id="R3OEiJ" name="primes2.png" compile="0" resource="1" file="../sjf_audio/algoImages/primes2.png"
+            xcodeResource="1"/>
+      <FILE id="h7x5tF" name="primes3.png" compile="0" resource="1" file="../sjf_audio/algoImages/primes3.png"
+            xcodeResource="1"/>
+      <FILE id="wEUzk1" name="primes4.png" compile="0" resource="1" file="../sjf_audio/algoImages/primes4.png"
+            xcodeResource="1"/>
+      <FILE id="xc5q8H" name="Tree1.png" compile="0" resource="1" file="../sjf_audio/algoImages/Tree1.png"
+            xcodeResource="1"/>
+    </GROUP>
     <GROUP id="{3744286B-F163-5927-09AF-2B1C1E7ECE10}" name="Source">
       <FILE id="faxsoy" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

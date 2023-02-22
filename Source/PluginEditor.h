@@ -41,7 +41,7 @@ private:
     void timerCallback() override;
     
     juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider,/* overdriveOutSlider,*/ lfoRSlider, lfoDSlider;
-    sjf_label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, modulationLabel1, modulationLabel2, overdriveOutLabel, overdrivePlacementLabel;
+    sjf_label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, lfoRLabel, lfoDLabel, overdriveOutLabel, overdrivePlacementLabel;
     
     juce::ToggleButton linkButton, hostSyncButton, fbLinkButton, fbControlButton, overdriveOnButton;
     juce::TextButton clearDelayLineButton;
@@ -52,6 +52,14 @@ private:
     std::unique_ptr<SliderAttachment> drySliderAttachment, wetSliderAttachment, fbLSliderAttachment, fbRSliderAttachment, detuneLSliderAttachment, detuneRSliderAttachment, delTLSliderAttachment, delTRSliderAttachment, syncValLOffsetNumBoxAttachment, syncValROffsetNumBoxAttachment, lpCutOffSliderAttachment, hpCutOffSliderAttachment, overdriveGainSliderAttachment, /*overdriveOutSliderAttachment,*/ lfoRSliderAttachment, lfoDSliderAttachment;
     std::unique_ptr<ButtonAttachment> linkButtonAttachment, hostSyncButtonAttachment, fbLinkButtonAttachment, fbControlButtonAttachment, overdriveOnButtonAttachment;
     std::unique_ptr<ComboBoxAttachment> interpolationTypeBoxAttachment, syncValLComboBoxAttachment, syncValRComboBoxAttachment, syncValLTypeComboBoxAttachment, syncValRTypeComboBoxAttachment, overdrivePlacementComboBoxAttachment;
+    
+    
+//    juce::Image m_backgroundImage = juce::ImageCache::getFromMemory ( BinaryData::primes1_png, BinaryData::primes1_pngSize );
+    
+        juce::Image m_backgroundImage = juce::ImageCache::getFromMemory (BinaryData::primes2_png, BinaryData::primes2_pngSize );
+//        juce::Image m_backgroundImage = juce::ImageCache::getFromMemory (BinaryData::primes3_png, BinaryData::primes3_pngSize );
+    //    juce::Image m_backgroundImage = juce::ImageCache::getFromMemory (BinaryData::primes4_png, BinaryData::primes4_pngSize );
+    //    juce::Image m_backgroundImage = juce::ImageCache::getFromMemory (BinaryData::Tree1_png, BinaryData::Tree1_pngSize );
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SjfWrecklessDelayAudioProcessorEditor)
 };

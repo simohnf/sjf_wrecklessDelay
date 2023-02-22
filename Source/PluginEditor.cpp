@@ -181,7 +181,7 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     addAndMakeVisible(&clearDelayLineButton);
     clearDelayLineButton.setButtonText("Clear DelayLine");
     clearDelayLineButton.onClick = [this]{ audioProcessor.clearDelayBuffer() ; };
-    clearDelayLineButton.setColour(juce::TextButton::buttonColourId, clearBufferBackgroundColour);
+//    clearDelayLineButton.setColour(juce::TextButton::buttonColourId, clearBufferBackgroundColour);
     
     addAndMakeVisible(&lpCutOffSlider);
     lpCutOffSliderAttachment.reset(new SliderAttachment(valueTreeState, "lpCutOff", lpCutOffSlider));
@@ -216,18 +216,7 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     overdriveGainSlider.setSliderStyle (juce::Slider::Rotary);
     overdriveGainSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     overdriveGainSlider.setNumDecimalPlacesToDisplay(3);
-//    overdriveGainLabel.attachToComponent(&overdriveGainSlider, false);
-//    overdriveGainLabel.setText("Gain", juce::dontSendNotification);
-//    overdriveGainLabel.setJustificationType (juce::Justification::centred);
-//
-//    addAndMakeVisible(&overdriveOutSlider);
-//    overdriveOutSliderAttachment.reset( new SliderAttachment(valueTreeState, "overdriveOut", overdriveOutSlider));
-//    overdriveOutSlider.setSliderStyle (juce::Slider::Rotary);
-//    overdriveOutSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
-//    overdriveOutSlider.setNumDecimalPlacesToDisplay(3);
-//    overdriveOutLabel.attachToComponent(&overdriveOutSlider, false);
-//    overdriveOutLabel.setText("Out Level", juce::dontSendNotification);
-//    overdriveOutLabel.setJustificationType (juce::Justification::centred);
+
     
     addAndMakeVisible(&overdrivePlacementComboBox);
     overdrivePlacementComboBox.addItem("Input", 1);
@@ -244,9 +233,9 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     lfoRSlider.setRange(0.0001, 20);
     lfoRSlider.setSkewFactor(0.3);
     lfoRSlider.setTextValueSuffix("Hz");
-    modulationLabel1.attachToComponent(&lfoRSlider, false);
-    modulationLabel1.setText("LFO Rate", juce::dontSendNotification);
-    modulationLabel1.setJustificationType (juce::Justification::centred);
+    lfoRLabel.attachToComponent(&lfoRSlider, false);
+    lfoRLabel.setText("LFO Rate", juce::dontSendNotification);
+    lfoRLabel.setJustificationType (juce::Justification::centred);
 
     
     addAndMakeVisible(&lfoDSlider);
@@ -254,9 +243,9 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     lfoDSlider.setSliderStyle (juce::Slider::Rotary);
     lfoDSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     lfoDSlider.setTextValueSuffix("%");
-    modulationLabel2.attachToComponent(&lfoDSlider, false);
-    modulationLabel2.setText("LFO Depth", juce::dontSendNotification);
-    modulationLabel2.setJustificationType (juce::Justification::centred);
+    lfoDLabel.attachToComponent(&lfoDSlider, false);
+    lfoDLabel.setText("LFO Depth", juce::dontSendNotification);
+    lfoDLabel.setJustificationType (juce::Justification::centred);
 
 
     addAndMakeVisible( &interpolationTypeBox );
@@ -282,70 +271,42 @@ SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 
 void SjfWrecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
-//    // (Our component is opaque, so we must completely fill the background with a solid colour)
-//    auto backColour = juce::Colours::darkgrey;
-//    g.fillAll ( backColour );
-//
-//    static constexpr int NUM_RAND_BOXES = 70;
-//    static constexpr auto randomColours = sjf_matrixOfRandomFloats< float, NUM_RAND_BOXES, 4 >();
-//    static constexpr auto randomCoordinates = sjf_matrixOfRandomFloats< float, NUM_RAND_BOXES, 5 >();
-//    static constexpr auto CORNER_SIZE = 5;
-//
-//    for ( int i = 0; i < NUM_RAND_BOXES; i++)
-//    {
-//        int red = randomColours.getValue(i, 0) * 255;
-//        int green = randomColours.getValue(i, 1)  * 255;
-//        int blue = randomColours.getValue(i, 2) * 255;
-//        float alpha = randomColours.getValue(i, 3) * 0.3;
-//        auto randColour = juce::Colour( red, green, blue );
-//        randColour = randColour.withAlpha(alpha);
-//        g.setColour( randColour );
-//
-//        auto x = randomCoordinates.getValue( i, 0 ) * getWidth()*1.5;// - getWidth();
-//        auto y = randomCoordinates.getValue( i, 1 ) * getHeight()*1.5;// - getHeight();
-//        auto w = randomCoordinates.getValue( i, 2 ) * getWidth();
-//        auto h = randomCoordinates.getValue( i, 3 ) * getHeight();
-//        auto rectRand = juce::Rectangle<float>( x, y, w, h );
-//        auto rotate = randomCoordinates.getValue( i, 4 ) * M_PI*2;
-//        auto shearX = randomCoordinates.getValue( i, 5 );
-//        auto shearY = randomCoordinates.getValue( i, 6 );
-//        DBG(" rotate " << rotate << " " << shearX << " " << shearY );
-//        auto rotation = juce::AffineTransform::rotation( rotate, rectRand.getX(), rectRand.getY() );
-//        auto shear = juce::AffineTransform::shear(shearX, shearY);
-//        juce::Path path;
-//        path.addRoundedRectangle( rectRand, CORNER_SIZE );
-//        path.applyTransform( shear );
-//        g.fillPath(path, rotation );
-//    }
 
-    juce::Rectangle<int> r = getLocalBounds();
-    sjf_makeBackground< 20 >( g, r );
+//    juce::Rectangle<int> r = getLocalBounds();
+//    sjf_makeBackground< 20 >( g, r );
+
+    sjf_drawBackgroundImage( g, m_backgroundImage, getWidth(), getHeight() );
+    
+    
     
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
     g.drawFittedText("sjf_wrecklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
-    g.setColour (delayTimeBackgroundColour);
+    
+    auto panelColour = otherLookandFeel.panelColour.withAlpha(0.3f);
+//    g.setColour (delayTimeBackgroundColour);
+    g.setColour( panelColour );
     g.fillRect(delTLLabel.getX(), delTLLabel.getY(), delTRLabel.getRight()-delTLLabel.getX(), hostSyncButton.getBottom()- delTLLabel.getY());
 
-    g.setColour(detuneBackgroundColour);
+//    g.setColour(detuneBackgroundColour);
     g.fillRect(detuneLLabel.getX(), detuneLLabel.getY(), detuneRLabel.getRight()-detuneLLabel.getX(), detuneRSlider.getBottom()- detuneLLabel.getY());
     
-    g.setColour(feedbackBackgroundColour);
+//    g.setColour(feedbackBackgroundColour);
     g.fillRect(fbLLabel.getX(), fbLLabel.getY(), fbControlButton.getRight() - fbLLabel.getX(),fbControlButton.getBottom() - fbLLabel.getY());
 
-    g.setColour(filterBackgroundColour);
+//    g.setColour(filterBackgroundColour);
     g.fillRect(lpCutOffLabel.getX(), lpCutOffLabel.getY(), hpCutOffSlider.getRight() - lpCutOffLabel.getX() , hpCutOffSlider.getBottom() - lpCutOffLabel.getY());
     
-    g.setColour(overdriveBackgroundColour);
+//    g.setColour(overdriveBackgroundColour);
     g.fillRect(overdriveOnButton.getX(), overdriveOnButton.getY(), overdrivePlacementComboBox.getRight() - overdriveOnButton.getX() , overdriveGainSlider.getBottom() - overdriveOnButton.getY());
 
-    g.setColour(lfoBackgroundColour);
-    g.fillRect(lfoDSlider.getX(), lfoDSlider.getY(), lfoRSlider.getRight() - lfoDSlider.getX() , lfoRSlider.getBottom() - lfoDSlider.getY());
+//    g.setColour(lfoBackgroundColour);
+    g.fillRect(lfoDLabel.getX(), lfoDLabel.getY(), lfoRSlider.getWidth() + lfoDSlider.getWidth() , lfoRSlider.getHeight() + lfoRLabel.getHeight());
     
-    g.setColour(wetBackgroundColour);
+//    g.setColour(wetBackgroundColour);
     g.fillRect(wetLabel.getX(), wetLabel.getY(), wetLabel.getRight() - wetLabel.getX() , wetSlider.getBottom() - wetLabel.getY());
     
-    g.setColour(dryBackgroundColour);
+//    g.setColour(dryBackgroundColour);
     g.fillRect(dryLabel.getX(), dryLabel.getY(), dryLabel.getRight() - dryLabel.getX() , drySlider.getBottom() - dryLabel.getY());
     
 }
