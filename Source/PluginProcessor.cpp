@@ -199,8 +199,8 @@ bool SjfWrecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout&
     juce::ignoreUnused (layouts);
     return true;
   #else
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    if (/* layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
+     && */ layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
