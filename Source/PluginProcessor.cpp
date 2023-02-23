@@ -199,8 +199,8 @@ bool SjfWrecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout&
     juce::ignoreUnused (layouts);
     return true;
   #else
-    if (/* layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && */ layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
+     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
@@ -254,9 +254,9 @@ void SjfWrecklessDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
         
         driveFactor = overdriveGain.getNextValue();
         
-        for ( int channel = 0; channel < NUM_CHANNELS; channel++ )
+        for ( int channel = 0; channel < totalNumOutputChannels; channel++ )
         {
-            inSamp = buffer.getSample( channel, indexThroughBuffer );
+            inSamp = buffer.getSample( fastMod(channel, totalNumInputChannels), indexThroughBuffer );
             // set delay time
             dt = m_delayTimeSmoothers[ channel ].getNextValue();
             phasorOut += channel * MOD_OFFSET;
