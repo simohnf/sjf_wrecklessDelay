@@ -19,6 +19,8 @@
 */
 class SjfWrecklessDelayAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
 {
+    sjf_numBox testBox;
+    
 public:
     SjfWrecklessDelayAudioProcessorEditor (SjfWrecklessDelayAudioProcessor&, juce::AudioProcessorValueTreeState& vts);
     ~SjfWrecklessDelayAudioProcessorEditor() override;
@@ -33,18 +35,30 @@ public:
     
     
 private:
+    
+    
     SjfWrecklessDelayAudioProcessor& audioProcessor;
+    
+    
+    
     juce::AudioProcessorValueTreeState& valueTreeState;
+    
     
     sjf_lookAndFeel otherLookandFeel; 
     
+    void linkOrSyncChange();
+    void fbLinkChange();
     void timerCallback() override;
     
-    juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider,/* overdriveOutSlider,*/ lfoRSlider, lfoDSlider;
-    sjf_label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, lfoRLabel, lfoDLabel, overdriveOutLabel, overdrivePlacementLabel;
+//    juce::Label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, lfoRLabel, lfoDLabel, overdriveOutLabel, overdrivePlacementLabel;
+    juce::Label tooltipLabel;
     
-    juce::ToggleButton linkButton, hostSyncButton, fbLinkButton, fbControlButton, overdriveOnButton;
+    juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider,/* overdriveOutSlider,*/ lfoRSlider, lfoDSlider;
+    
+    juce::ToggleButton linkButton, hostSyncButton, fbLinkButton, fbControlButton, overdriveOnButton, tooltipsToggle;
     juce::TextButton clearDelayLineButton;
+
+    juce::String MAIN_TOOLTIP = "sjf_wrecklessDelay: \nStereo delay with independent detune for each channel, lfo modulation, and soft clipping";
     
     juce::ComboBox interpolationTypeBox, syncValLComboBox, syncValRComboBox, syncValLTypeComboBox, syncValRTypeComboBox, overdrivePlacementComboBox;
     sjf_numBox syncValLOffsetNumBox, syncValROffsetNumBox, detuneLSlider, detuneRSlider;

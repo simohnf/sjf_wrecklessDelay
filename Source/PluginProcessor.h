@@ -18,6 +18,9 @@
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_lpf.h"
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_wavetables.h"
 #include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_phasor.h"
+
+#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_numBox.h"
+
 //==============================================================================
 /**
 */
@@ -95,6 +98,14 @@ private:
     void overdriveParameters();
     void detuneParameters();
     
+    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> dry, wet, /*fbL, fbR,*/ hpCutOff, lpCutOff, overdriveGain, /*overdriveOut,*/ lfoR, lfoD;
+    std::array< juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear>, NUM_CHANNELS > m_delayTimeSmoothers, m_fbSmoothers;
+    float detuneL, detuneR;
+    float bpm = 120.0f, delTL, delTR;
+    int syncValL, syncValR, syncValLType, syncValRType;
+    float syncValLOffset, syncValROffset/*, overdrivePlacement*/;
+    bool linkFlag, syncFlag, fbLinkFlag, fbControlFlag, overdriveFlag;
+    
 //    sjf_pitchShifter delayLine;
     std::array< sjf_pitchShift< float >, NUM_CHANNELS > m_pitchShifter;
     std::array< sjf_delayLine< float >, NUM_CHANNELS > m_delayLine;
@@ -108,6 +119,7 @@ private:
     
     juce::AudioPlayHead* playHead;
     juce::AudioPlayHead::PositionInfo positionInfo;
+    
     
     juce::AudioProcessorValueTreeState parameters;
     
@@ -139,13 +151,7 @@ private:
     std::atomic<float>* lfoRateParameter = nullptr;
     std::atomic<float>* interpolationTypeParameter = nullptr;
     
-    juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear> dry, wet, /*fbL, fbR,*/ hpCutOff, lpCutOff, overdriveGain, /*overdriveOut,*/ lfoR, lfoD;
-    std::array< juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear>, NUM_CHANNELS > m_delayTimeSmoothers, m_fbSmoothers;
-    float detuneL, detuneR;
-    float bpm = 120.0f, delTL, delTR;
-    int syncValL, syncValR, syncValLType, syncValRType;
-    float syncValLOffset, syncValROffset/*, overdrivePlacement*/;
-    bool linkFlag, syncFlag, fbLinkFlag, fbControlFlag, overdriveFlag;
+    sjf_numBox testBox;
 
     
 //    sjf_oscillator lfo;

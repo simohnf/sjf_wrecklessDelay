@@ -61,6 +61,7 @@ SjfWrecklessDelayAudioProcessor::SjfWrecklessDelayAudioProcessor()
 
 SjfWrecklessDelayAudioProcessor::~SjfWrecklessDelayAudioProcessor()
 {
+    DBG("DELETING AUDIO PROCESSOR");
 }
 
 void SjfWrecklessDelayAudioProcessor::initialise( int sampleRate )
@@ -120,11 +121,13 @@ void SjfWrecklessDelayAudioProcessor::initialise( int sampleRate )
 //==============================================================================
 const juce::String SjfWrecklessDelayAudioProcessor::getName() const
 {
+    DBG("GET NAME");
     return JucePlugin_Name;
 }
 
 bool SjfWrecklessDelayAudioProcessor::acceptsMidi() const
 {
+    DBG("ACCEPTS MIDI?");
    #if JucePlugin_WantsMidiInput
     return true;
    #else
@@ -134,6 +137,7 @@ bool SjfWrecklessDelayAudioProcessor::acceptsMidi() const
 
 bool SjfWrecklessDelayAudioProcessor::producesMidi() const
 {
+    DBG("MAKES MIDI");
    #if JucePlugin_ProducesMidiOutput
     return true;
    #else
@@ -143,6 +147,7 @@ bool SjfWrecklessDelayAudioProcessor::producesMidi() const
 
 bool SjfWrecklessDelayAudioProcessor::isMidiEffect() const
 {
+    DBG("IS MIDI");
    #if JucePlugin_IsMidiEffect
     return true;
    #else
@@ -152,26 +157,31 @@ bool SjfWrecklessDelayAudioProcessor::isMidiEffect() const
 
 double SjfWrecklessDelayAudioProcessor::getTailLengthSeconds() const
 {
+    DBG("GET TAIL");
     return 0.0;
 }
 
 int SjfWrecklessDelayAudioProcessor::getNumPrograms()
 {
+    DBG("GEt NUM PROGRAM");
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int SjfWrecklessDelayAudioProcessor::getCurrentProgram()
 {
+    DBG("GEt PROGRAM");
     return 0;
 }
 
 void SjfWrecklessDelayAudioProcessor::setCurrentProgram (int index)
 {
+    DBG("SEt PROGRAM");
 }
 
 const juce::String SjfWrecklessDelayAudioProcessor::getProgramName (int index)
 {
+    DBG("GET PROGRAME NAME");
     return {};
 }
 
@@ -182,7 +192,7 @@ void SjfWrecklessDelayAudioProcessor::changeProgramName (int index, const juce::
 //==============================================================================
 void SjfWrecklessDelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-
+    DBG("PREPARE TO PLAY");
     initialise( sampleRate );
 }
 
@@ -190,11 +200,13 @@ void SjfWrecklessDelayAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+    DBG("RELEASING RESOURCES");
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool SjfWrecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
+    DBG("CHECKING BUSSeS");
   #if JucePlugin_IsMidiEffect
     juce::ignoreUnused (layouts);
     return true;
@@ -216,6 +228,7 @@ bool SjfWrecklessDelayAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 
 void SjfWrecklessDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    DBG("PROCESSING BLOK");
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -309,24 +322,29 @@ void SjfWrecklessDelayAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
 //==============================================================================
 bool SjfWrecklessDelayAudioProcessor::hasEditor() const
 {
+    DBG("HAS AN EDITOR?");
     return true; // (change this to false if you choose to not supply an editor)
 }
 
 juce::AudioProcessorEditor* SjfWrecklessDelayAudioProcessor::createEditor()
 {
+    DBG("CREATING EDITOR");
     return new SjfWrecklessDelayAudioProcessorEditor (*this, parameters);
 }
 
 //==============================================================================
 void SjfWrecklessDelayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
+    DBG("GETTING STATE");
     auto state = parameters.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
     copyXmlToBinary (*xml, destData);
+    DBG("GOT STATE");
 }
 
 void SjfWrecklessDelayAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    DBG("SAVING STATE");
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName (parameters.state.getType())){
@@ -337,6 +355,7 @@ void SjfWrecklessDelayAudioProcessor::setStateInformation (const void* data, int
 
 void SjfWrecklessDelayAudioProcessor::checkParameters( int bufferSize )
 {
+    DBG("CHECKING PARAMETERS");
     dry.setTargetValue( *dryParameter * 0.01f );
     wet.setTargetValue( *wetParameter * 0.01f );
 
@@ -503,6 +522,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SjfWrecklessDelayAudioProces
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
+    DBG("CREATE NEW PLUGIN");
     return new SjfWrecklessDelayAudioProcessor();
 }
 

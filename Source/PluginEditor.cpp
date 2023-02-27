@@ -13,6 +13,9 @@
 #define textHeight 20
 #define indent 10
 #define alph 0.5f
+
+#define WIDTH potSize*5 + indent*4
+#define HEIGHT potSize*3 + textHeight*5 + indent
 #define delayTimeBackgroundColour juce::Colour(25, 50, 25).withAlpha( alph )
 #define detuneBackgroundColour juce::Colour(5, 25, 50).withAlpha( alph )
 #define feedbackBackgroundColour juce::Colour(50, 5, 50).withAlpha( alph )
@@ -26,12 +29,12 @@
 SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (SjfWrecklessDelayAudioProcessor& p, juce::AudioProcessorValueTreeState& vts)
     : AudioProcessorEditor (&p),  audioProcessor (p), valueTreeState (vts)
 {
-    setLookAndFeel (&otherLookandFeel);
+    setLookAndFeel ( &otherLookandFeel );
     
-    dryLabel.setText ("Dry", juce::dontSendNotification);
-    addAndMakeVisible (&dryLabel);
-    dryLabel.setJustificationType (juce::Justification::centred);
-    dryLabel.attachToComponent(&drySlider, false);
+//    dryLabel.setText ("Dry", juce::dontSendNotification);
+//    addAndMakeVisible (&dryLabel);
+//    dryLabel.setJustificationType (juce::Justification::centred);
+//    dryLabel.attachToComponent(&drySlider, false);
 //    dryLabel.setColour(juce::Label::outlineColourId, otherLookandFeel.outlineColour);
     
     addAndMakeVisible (&drySlider);
@@ -40,11 +43,11 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     drySlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     drySlider.setNumDecimalPlacesToDisplay(3);
     drySlider.setTextValueSuffix ("%");
-    
-    wetLabel.setText ("Wet", juce::dontSendNotification);
-    addAndMakeVisible (&wetLabel);
-    wetLabel.setJustificationType (juce::Justification::centred);
-    wetLabel.attachToComponent(&wetSlider, false);
+    drySlider.setTooltip("This sets the level of the dry input signal passed through to the output");
+//    wetLabel.setText ("Wet", juce::dontSendNotification);
+//    addAndMakeVisible (&wetLabel);
+//    wetLabel.setJustificationType (juce::Justification::centred);
+//    wetLabel.attachToComponent(&wetSlider, false);
     
     addAndMakeVisible (&wetSlider);
     wetSliderAttachment.reset (new SliderAttachment (valueTreeState, "wet", wetSlider));
@@ -52,23 +55,24 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     wetSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     wetSlider.setNumDecimalPlacesToDisplay(3);
     wetSlider.setTextValueSuffix ("%");
+    wetSlider.setTooltip("This sets the level of the delayed signal passed through to the output");
     
 
-    delTLLabel.setText ("Time L", juce::dontSendNotification);
-    addAndMakeVisible (&delTLLabel);
-    delTLLabel.setJustificationType (juce::Justification::centred);
-    delTLLabel.attachToComponent(&delTLSlider, false);
+//    delTLLabel.setText ("Time L", juce::dontSendNotification);
+//    addAndMakeVisible (&delTLLabel);
+//    delTLLabel.setJustificationType (juce::Justification::centred);
+//    delTLLabel.attachToComponent(&delTLSlider, false);
     addAndMakeVisible (&delTLSlider);
     delTLSliderAttachment.reset (new SliderAttachment (valueTreeState, "timeLeft", delTLSlider));
     delTLSlider.setSliderStyle (juce::Slider::Rotary);
     delTLSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     delTLSlider.setNumDecimalPlacesToDisplay(3);
     delTLSlider.setTextValueSuffix ("ms");
-    
-    delTRLabel.setText ("Time R", juce::dontSendNotification);
-    addAndMakeVisible (&delTRLabel);
-    delTRLabel.setJustificationType (juce::Justification::centred);
-    delTRLabel.attachToComponent(&delTRSlider, false);
+    delTLSlider.setTooltip("This sets the delay time for the left channel in milliseconds");
+//    delTRLabel.setText ("Time R", juce::dontSendNotification);
+//    addAndMakeVisible (&delTRLabel);
+//    delTRLabel.setJustificationType (juce::Justification::centred);
+//    delTRLabel.attachToComponent(&delTRSlider, false);
     
     addAndMakeVisible (&delTRSlider);
     delTRSliderAttachment.reset (new SliderAttachment (valueTreeState, "timeRight", delTRSlider));
@@ -76,11 +80,11 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     delTRSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     delTRSlider.setNumDecimalPlacesToDisplay(3);
     delTRSlider.setTextValueSuffix ("ms");
-    
-    fbLLabel.setText ("Feedback L", juce::dontSendNotification);
-    addAndMakeVisible (&fbLLabel);
-    fbLLabel.setJustificationType (juce::Justification::centred);
-    fbLLabel.attachToComponent(&fbLSlider, false);
+    delTRSlider.setTooltip("This sets the delay time for the right channel in milliseconds");
+//    fbLLabel.setText ("Feedback L", juce::dontSendNotification);
+//    addAndMakeVisible (&fbLLabel);
+//    fbLLabel.setJustificationType (juce::Justification::centred);
+//    fbLLabel.attachToComponent(&fbLSlider, false);
     
     addAndMakeVisible (&fbLSlider);
     fbLSliderAttachment.reset (new SliderAttachment (valueTreeState, "fbL", fbLSlider));
@@ -90,11 +94,12 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     fbLSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     fbLSlider.setNumDecimalPlacesToDisplay(3);
     fbLSlider.setTextValueSuffix ("%");
+    fbLSlider.setTooltip("This sets the feedback for the left channel");
     
-    fbRLabel.setText ("Feedback R", juce::dontSendNotification);
-    addAndMakeVisible (&fbRLabel);
-    fbRLabel.setJustificationType (juce::Justification::centred);
-    fbRLabel.attachToComponent(&fbRSlider, false);
+//    fbRLabel.setText ("Feedback R", juce::dontSendNotification);
+//    addAndMakeVisible (&fbRLabel);
+//    fbRLabel.setJustificationType (juce::Justification::centred);
+//    fbRLabel.attachToComponent(&fbRSlider, false);
     
     addAndMakeVisible (&fbRSlider);
     fbRSliderAttachment.reset (new SliderAttachment (valueTreeState, "fbR", fbRSlider));
@@ -104,41 +109,55 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     fbRSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     fbRSlider.setNumDecimalPlacesToDisplay(3);
     fbRSlider.setTextValueSuffix ("%");
+    fbRSlider.setTooltip("This sets the feedback for the right channel");
     
     addAndMakeVisible(&fbLinkButton);
+    fbLinkButton.onClick = [ this ] { fbLinkChange(); };
     fbLinkButtonAttachment.reset(new ButtonAttachment(valueTreeState, "fbLink", fbLinkButton));
     fbLinkButton.setButtonText("FB Link");
+    fbLinkButton.setTooltip("This links the feedback of both channels");
+    
     addAndMakeVisible(&fbControlButton);
     fbControlButtonAttachment.reset(new ButtonAttachment(valueTreeState, "fbControl", fbControlButton));
     fbControlButton.setButtonText("FB Control");
+    fbControlButton.setTooltip("This enables a softclipper to ensure feedback never goes above 100%");
     
-    addAndMakeVisible(&detuneLLabel);
-    detuneLLabel.attachToComponent(&detuneLSlider, false);
-    detuneLLabel.setText("Detune L", juce::dontSendNotification);
+    
+    
+//    addAndMakeVisible(&detuneLLabel);
+//    detuneLLabel.attachToComponent(&detuneLSlider, false);
+//    detuneLLabel.setText("Detune L", juce::dontSendNotification);
     addAndMakeVisible (&detuneLSlider);
     detuneLSliderAttachment.reset (new SliderAttachment (valueTreeState, "detuneL", detuneLSlider));
     detuneLSlider.setTextValueSuffix ("cent");
-
-    addAndMakeVisible(&detuneRLabel);
-    detuneRLabel.attachToComponent(&detuneRSlider, false);
-    detuneRLabel.setText("Detune R", juce::dontSendNotification);
+    detuneLSlider.setColour( juce::Slider::textBoxOutlineColourId, otherLookandFeel.outlineColour );
+    detuneLSlider.setTooltip("This detunes the left channel");
+//    addAndMakeVisible(&detuneRLabel);
+//    detuneRLabel.attachToComponent(&detuneRSlider, false);
+//    detuneRLabel.setText("Detune R", juce::dontSendNotification);
     addAndMakeVisible (&detuneRSlider);
     detuneRSliderAttachment.reset (new SliderAttachment (valueTreeState, "detuneR", detuneRSlider));
     detuneRSlider.setTextValueSuffix ("cent");
+    detuneRSlider.setColour( juce::Slider::textBoxOutlineColourId, otherLookandFeel.outlineColour );
+    detuneLSlider.setTooltip("This detunes the right channel");
     
     addAndMakeVisible(&linkButton);
+    linkButton.onClick = [ this ]{ linkOrSyncChange(); };
     linkButtonAttachment.reset(new ButtonAttachment(valueTreeState, "link", linkButton));
     linkButton.setButtonText("Link");
-    
+    linkButton.setTooltip("This links the delay times of the left and right channels");
     
     addAndMakeVisible(&hostSyncButton);
+    hostSyncButton.onClick = [ this ]{ linkOrSyncChange(); };
     hostSyncButtonAttachment.reset(new ButtonAttachment(valueTreeState, "sync", hostSyncButton));
     hostSyncButton.setButtonText("Sync To Host");
+    hostSyncButton.setTooltip("This syncs the delay times to the tempo of the host application");
     
-    addAndMakeVisible(&syncLabelL);
-    syncLabelL.setText ("Division L", juce::dontSendNotification);
-    syncLabelL.setJustificationType (juce::Justification::centred);
-    syncLabelL.attachToComponent(&syncValLComboBox, false);
+    
+//    addAndMakeVisible(&syncLabelL);
+//    syncLabelL.setText ("Division L", juce::dontSendNotification);
+//    syncLabelL.setJustificationType (juce::Justification::centred);
+//    syncLabelL.attachToComponent(&syncValLComboBox, false);
     
     addAndMakeVisible(&syncValLComboBox);
     syncValLComboBox.addItem("1/2", 1);
@@ -147,16 +166,18 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     syncValLComboBox.addItem("1/16", 4);
     syncValLComboBox.addItem("1/32", 5);
     syncValLComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "syncValL", syncValLComboBox));
+    syncValLComboBox.setTooltip("This sets the delay time of the left channel in rhythmic divisions relative to the host tempo");
+    
     addAndMakeVisible(syncValLTypeComboBox);
     syncValLTypeComboBox.addItem("dotted", 1);
     syncValLTypeComboBox.addItem("normal", 2);
     syncValLTypeComboBox.addItem("triplet", 3);
     syncValLTypeComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "syncValLType", syncValLTypeComboBox));
-    
-    addAndMakeVisible(&syncLabelR);
-    syncLabelR.setText ("Division R", juce::dontSendNotification);
-    syncLabelR.setJustificationType (juce::Justification::centred);
-    syncLabelR.attachToComponent(&syncValRComboBox, false);
+    syncValLTypeComboBox.setTooltip("A variety of different types of rhythmic divisions for the left channel");
+//    addAndMakeVisible(&syncLabelR);
+//    syncLabelR.setText ("Division R", juce::dontSendNotification);
+//    syncLabelR.setJustificationType (juce::Justification::centred);
+//    syncLabelR.attachToComponent(&syncValRComboBox, false);
     addAndMakeVisible(syncValRComboBox);
     syncValRComboBox.addItem("1/2", 1);
     syncValRComboBox.addItem("1/4", 2);
@@ -164,23 +185,27 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     syncValRComboBox.addItem("1/16", 4);
     syncValRComboBox.addItem("1/32", 5);
     syncValRComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "syncValR", syncValRComboBox));
+    syncValRComboBox.setTooltip("This sets the delay time of the right channel in rhythmic divisions relative to the host tempo");
     addAndMakeVisible(syncValRTypeComboBox);
     syncValRTypeComboBox.addItem("dotted", 1);
     syncValRTypeComboBox.addItem("normal", 2);
     syncValRTypeComboBox.addItem("triplet", 3);
     syncValRTypeComboBoxAttachment.reset(new ComboBoxAttachment(valueTreeState, "syncValRType", syncValRTypeComboBox));
+    syncValRTypeComboBox.setTooltip("A variety of different types of rhythmic divisions for the right channel");
     
     addAndMakeVisible(&syncValLOffsetNumBox);
     syncValLOffsetNumBoxAttachment.reset(new SliderAttachment(valueTreeState, "syncValLOffset", syncValLOffsetNumBox));
     syncValLOffsetNumBox.setTextValueSuffix("%");
-    
+    syncValLOffsetNumBox.setTooltip("This shifts the delaytime of the left channel forwards or backwards by some percentage");
     addAndMakeVisible(&syncValROffsetNumBox);
     syncValROffsetNumBoxAttachment.reset(new SliderAttachment(valueTreeState, "syncValROffset", syncValROffsetNumBox));
     syncValROffsetNumBox.setTextValueSuffix("%");
+    syncValROffsetNumBox.setTooltip("This shifts the delaytime of the right channel forwards or backwards by some percentage");
     
     addAndMakeVisible(&clearDelayLineButton);
     clearDelayLineButton.setButtonText("Clear DelayLine");
     clearDelayLineButton.onClick = [this]{ audioProcessor.clearDelayBuffer() ; };
+    clearDelayLineButton.setTooltip("This will completely clear all information stored in the delaylines in case of feedback explosions");
 //    clearDelayLineButton.setColour(juce::TextButton::buttonColourId, clearBufferBackgroundColour);
     
     addAndMakeVisible(&lpCutOffSlider);
@@ -191,9 +216,10 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     lpCutOffSlider.setNumDecimalPlacesToDisplay(3);
     lpCutOffSlider.setRange(100, 20000);
     lpCutOffSlider.setSkewFactor(0.3);
-    lpCutOffLabel.attachToComponent(&lpCutOffSlider, false);
-    lpCutOffLabel.setText("LPF", juce::dontSendNotification);
-    lpCutOffLabel.setJustificationType (juce::Justification::centred);
+    lpCutOffSlider.setTooltip("This sets the cutoff of the lowpass filter");
+//    lpCutOffLabel.attachToComponent(&lpCutOffSlider, false);
+//    lpCutOffLabel.setText("LPF", juce::dontSendNotification);
+//    lpCutOffLabel.setJustificationType (juce::Justification::centred);
     
     addAndMakeVisible(&hpCutOffSlider);
     hpCutOffSliderAttachment.reset(new SliderAttachment(valueTreeState, "hpCutOff", hpCutOffSlider));
@@ -203,27 +229,29 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     hpCutOffSlider.setNumDecimalPlacesToDisplay(3);
     hpCutOffSlider.setRange(20.0f, 10000.0f);
     hpCutOffSlider.setSkewFactor(0.3);
-    hpCutOffLabel.attachToComponent(&hpCutOffSlider, false);
-    hpCutOffLabel.setText("HPF", juce::dontSendNotification);
-    hpCutOffLabel.setJustificationType (juce::Justification::centred);
+    hpCutOffSlider.setTooltip("This sets the cutoff of the highpass filter");
+//    hpCutOffLabel.attachToComponent(&hpCutOffSlider, false);
+//    hpCutOffLabel.setText("HPF", juce::dontSendNotification);
+//    hpCutOffLabel.setJustificationType (juce::Justification::centred);
     
     addAndMakeVisible(&overdriveOnButton);
-    overdriveOnButton.setButtonText("overdrive");
+    overdriveOnButton.setButtonText("Drive");
     overdriveOnButtonAttachment.reset( new ButtonAttachment(valueTreeState, "overdriveOn", overdriveOnButton));
+    overdriveOnButton.setTooltip("This turns on the softclip overdrive waveshaper");
     
     addAndMakeVisible(&overdriveGainSlider);
     overdriveGainSliderAttachment.reset( new SliderAttachment(valueTreeState, "overdriveGain", overdriveGainSlider));
     overdriveGainSlider.setSliderStyle (juce::Slider::Rotary);
     overdriveGainSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     overdriveGainSlider.setNumDecimalPlacesToDisplay(3);
-
+    overdriveGainSlider.setTooltip("This sets the gain of the signal passed into the overdrive");
     
     addAndMakeVisible(&overdrivePlacementComboBox);
     overdrivePlacementComboBox.addItem("Input", 1);
     overdrivePlacementComboBox.addItem("Pre FB", 2);
     overdrivePlacementComboBox.addItem("Output", 3);
     overdrivePlacementComboBoxAttachment.reset( new ComboBoxAttachment(valueTreeState, "overdrivePlacement", overdrivePlacementComboBox) );
-    
+    overdrivePlacementComboBox.setTooltip("This changes the position of the overdrive");
     
     addAndMakeVisible(&lfoRSlider);
     lfoRSliderAttachment.reset( new SliderAttachment(valueTreeState, "lfoRate", lfoRSlider));
@@ -233,9 +261,10 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     lfoRSlider.setRange(0.0001, 20);
     lfoRSlider.setSkewFactor(0.3);
     lfoRSlider.setTextValueSuffix("Hz");
-    lfoRLabel.attachToComponent(&lfoRSlider, false);
-    lfoRLabel.setText("LFO Rate", juce::dontSendNotification);
-    lfoRLabel.setJustificationType (juce::Justification::centred);
+//    lfoRSlider
+//    lfoRLabel.attachToComponent(&lfoRSlider, false);
+//    lfoRLabel.setText("LFO Rate", juce::dontSendNotification);
+//    lfoRLabel.setJustificationType (juce::Justification::centred);
 
     
     addAndMakeVisible(&lfoDSlider);
@@ -243,9 +272,9 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     lfoDSlider.setSliderStyle (juce::Slider::Rotary);
     lfoDSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, potSize, textHeight);
     lfoDSlider.setTextValueSuffix("%");
-    lfoDLabel.attachToComponent(&lfoDSlider, false);
-    lfoDLabel.setText("LFO Depth", juce::dontSendNotification);
-    lfoDLabel.setJustificationType (juce::Justification::centred);
+//    lfoDLabel.attachToComponent(&lfoDSlider, false);
+//    lfoDLabel.setText("LFO Depth", juce::dontSendNotification);
+//    lfoDLabel.setJustificationType (juce::Justification::centred);
 
 
     addAndMakeVisible( &interpolationTypeBox );
@@ -257,14 +286,34 @@ SjfWrecklessDelayAudioProcessorEditor::SjfWrecklessDelayAudioProcessorEditor (Sj
     interpolationTypeBox.addItem( "Hermite", 6 );
     interpolationTypeBoxAttachment.reset (new juce::AudioProcessorValueTreeState::ComboBoxAttachment (valueTreeState, "interpolationType", interpolationTypeBox));
     
+    addAndMakeVisible( &tooltipsToggle );
+    tooltipsToggle.setButtonText( "Hints" );
+    tooltipsToggle.onClick = [ this ]
+    {
+      if ( tooltipsToggle.getToggleState() )
+          setSize ( WIDTH, HEIGHT + tooltipLabel.getHeight() );
+      else
+          setSize (WIDTH, HEIGHT);
+    };
+    
+    
+    addAndMakeVisible( &tooltipLabel );
+    tooltipLabel.setColour( juce::Label::backgroundColourId, otherLookandFeel.backGroundColour.withAlpha( 0.85f ) );
+    
+    
     startTimer(100);
     
-    setSize (potSize*5 + indent*4, potSize*3 + textHeight*5 + indent);
+    setSize (WIDTH, HEIGHT);
+    linkOrSyncChange();
+    fbLinkChange();
 }
 
 SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 {
+    DBG("DELETING EDITOR");
+    stopTimer();
     setLookAndFeel (nullptr);
+    DBG("DELETED EDITOR");
 }
 
 //==============================================================================
@@ -272,43 +321,115 @@ SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 void SjfWrecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
 
-    juce::Rectangle<int> r = getLocalBounds();
+    juce::Rectangle<int> r { WIDTH, HEIGHT };
     sjf_makeBackground< 40 >( g, r );
 
 //    sjf_drawBackgroundImage( g, m_backgroundImage, getWidth(), getHeight() );
     
     
     
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText("sjf_wrecklessDelay", getWidth()/2-potSize, 0, potSize*2, textHeight, juce::Justification::centred, 1);
-    
+
     auto panelColour = otherLookandFeel.panelColour.withAlpha(0.3f);
 //    g.setColour (delayTimeBackgroundColour);
     g.setColour( panelColour );
-    g.fillRect(delTLLabel.getX(), delTLLabel.getY(), delTRLabel.getRight()-delTLLabel.getX(), hostSyncButton.getBottom()- delTLLabel.getY());
+    g.fillRect(delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize*2, potSize+textHeight*3);
 
 //    g.setColour(detuneBackgroundColour);
-    g.fillRect(detuneLLabel.getX(), detuneLLabel.getY(), detuneRLabel.getRight()-detuneLLabel.getX(), detuneRSlider.getBottom()- detuneLLabel.getY());
+    g.fillRect(detuneLSlider.getX(), detuneLSlider.getY() - textHeight, potSize*2, textHeight*2);
     
 //    g.setColour(feedbackBackgroundColour);
-    g.fillRect(fbLLabel.getX(), fbLLabel.getY(), fbControlButton.getRight() - fbLLabel.getX(),fbControlButton.getBottom() - fbLLabel.getY());
+    g.fillRect(fbLSlider.getX(), fbLSlider.getY() - textHeight, potSize*2, potSize+textHeight*2);
 
 //    g.setColour(filterBackgroundColour);
-    g.fillRect(lpCutOffLabel.getX(), lpCutOffLabel.getY(), hpCutOffSlider.getRight() - lpCutOffLabel.getX() , hpCutOffSlider.getBottom() - lpCutOffLabel.getY());
+    g.fillRect(lpCutOffSlider.getX(), lpCutOffSlider.getY() - textHeight, potSize*2 , potSize + textHeight);
     
 //    g.setColour(overdriveBackgroundColour);
-    g.fillRect(overdriveOnButton.getX(), overdriveOnButton.getY(), overdrivePlacementComboBox.getRight() - overdriveOnButton.getX() , overdriveGainSlider.getBottom() - overdriveOnButton.getY());
+    g.fillRect(overdriveOnButton.getX(), overdriveOnButton.getY(), potSize*2 , potSize+textHeight);
 
 //    g.setColour(lfoBackgroundColour);
-    g.fillRect(lfoDLabel.getX(), lfoDLabel.getY(), lfoRSlider.getWidth() + lfoDSlider.getWidth() , lfoRSlider.getHeight() + lfoRLabel.getHeight());
+    g.fillRect(lfoDSlider.getX(), lfoDSlider.getY() - textHeight, potSize*2 , potSize+textHeight);
     
 //    g.setColour(wetBackgroundColour);
-    g.fillRect(wetLabel.getX(), wetLabel.getY(), wetLabel.getRight() - wetLabel.getX() , wetSlider.getBottom() - wetLabel.getY());
+    g.fillRect(wetSlider.getX(), wetSlider.getY()-textHeight, potSize , potSize*1.25 + textHeight);
     
 //    g.setColour(dryBackgroundColour);
-    g.fillRect(dryLabel.getX(), dryLabel.getY(), dryLabel.getRight() - dryLabel.getX() , drySlider.getBottom() - dryLabel.getY());
+    g.fillRect(drySlider.getX(), drySlider.getY()-textHeight, potSize, potSize*1.25 + textHeight);
     
+    g.setColour ( juce::Colours::white );
+    g.setFont ( 15.0f );
+    g.drawFittedText("sjf_wrecklessDelay", 0, 0, getWidth(), textHeight, juce::Justification::centred, 1);
+    
+    g.drawFittedText("Wet", wetSlider.getX(), wetSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("Dry", drySlider.getX(), drySlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("LPF", lpCutOffSlider.getX(), lpCutOffSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("HPF", hpCutOffSlider.getX(), hpCutOffSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("LFO R", lfoRSlider.getX(), lfoRSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("LFO D", lfoDSlider.getX(), lfoDSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("Detune L", detuneLSlider.getX(), detuneLSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    g.drawFittedText("Detune R", detuneRSlider.getX(), detuneRSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+    
+    g.setColour ( juce::Colours::white );
+    if ( hostSyncButton.getToggleState() )
+    {
+        if ( linkButton.getToggleState() )
+        {
+            g.drawFittedText("Division", delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize*2, textHeight, juce::Justification::centred, 1);
+            g.setColour ( otherLookandFeel.outlineColour );
+            g.drawRect( delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize*2, textHeight );
+        }
+        else
+        {
+            g.drawFittedText("Division L", delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+            g.drawFittedText("Division R", delTRSlider.getX(), delTRSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+            g.setColour ( otherLookandFeel.outlineColour );
+            g.drawRect( delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize, textHeight );
+            g.drawRect( delTRSlider.getX(), delTRSlider.getY() - textHeight, potSize, textHeight );
+        }
+    }
+    else
+    {
+        if ( linkButton.getToggleState() )
+        {
+            g.drawFittedText("Time", delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize*2, textHeight, juce::Justification::centred, 1);
+            g.setColour ( otherLookandFeel.outlineColour );
+            g.drawRect( delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize*2, textHeight );
+        }
+        else
+        {
+            g.drawFittedText("Time L", delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+            g.drawFittedText("Time R", delTRSlider.getX(), delTRSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+            g.setColour ( otherLookandFeel.outlineColour );
+            g.drawRect( delTLSlider.getX(), delTLSlider.getY() - textHeight, potSize, textHeight );
+            g.drawRect( delTRSlider.getX(), delTRSlider.getY() - textHeight, potSize, textHeight );
+        }
+    }
+    
+    g.setColour ( juce::Colours::white );
+    if ( fbLinkButton.getToggleState() )
+    {
+        g.drawFittedText("Feedback", fbLSlider.getX(), fbLSlider.getY() - textHeight, potSize*2, textHeight, juce::Justification::centred, 1);
+        g.setColour ( otherLookandFeel.outlineColour );
+        g.drawRect( fbLSlider.getX(), fbLSlider.getY() - textHeight, potSize*2, textHeight );
+    }
+    else
+    {
+        g.drawFittedText("Feedback L", fbLSlider.getX(), fbLSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+        g.drawFittedText("Feedback R", fbRSlider.getX(), fbRSlider.getY() - textHeight, potSize, textHeight, juce::Justification::centred, 1);
+        g.setColour ( otherLookandFeel.outlineColour );
+        g.drawRect( fbLSlider.getX(), fbLSlider.getY() - textHeight, potSize, textHeight );
+        g.drawRect( fbRSlider.getX(), fbRSlider.getY() - textHeight, potSize, textHeight );
+    }
+    
+    g.setColour ( otherLookandFeel.outlineColour );
+    g.drawRect( wetSlider.getX(), wetSlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( drySlider.getX(), drySlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( lpCutOffSlider.getX(), lpCutOffSlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( hpCutOffSlider.getX(), hpCutOffSlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( lfoRSlider.getX(), lfoRSlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( lfoDSlider.getX(), lfoDSlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( detuneLSlider.getX(), detuneLSlider.getY() - textHeight, potSize, textHeight );
+    g.drawRect( detuneRSlider.getX(), detuneRSlider.getY() - textHeight, potSize, textHeight );
+
 }
 
 void SjfWrecklessDelayAudioProcessorEditor::resized()
@@ -351,49 +472,89 @@ void SjfWrecklessDelayAudioProcessorEditor::resized()
     
     //==============================================================================
     
-    drySlider.setBounds(hpCutOffSlider.getX() + hpCutOffSlider.getWidth() + indent , textHeight*2, potSize, potSize*1.25);
-    wetSlider.setBounds(drySlider.getX(), drySlider.getY()+drySlider.getHeight()+textHeight + indent, potSize, drySlider.getHeight());
-    interpolationTypeBox.setBounds(drySlider.getX(), wetSlider.getBottom()+indent, potSize, textHeight);
-    clearDelayLineButton.setBounds(interpolationTypeBox.getX(), interpolationTypeBox.getBottom()+indent, potSize, textHeight);
+    drySlider.setBounds(hpCutOffSlider.getRight() + indent, textHeight*2, potSize, potSize*1.25);
+    wetSlider.setBounds(drySlider.getX(), drySlider.getBottom()+textHeight + indent/2, potSize, drySlider.getHeight());
+    interpolationTypeBox.setBounds(drySlider.getX(), wetSlider.getBottom()+indent/2, potSize, textHeight);
+    clearDelayLineButton.setBounds(interpolationTypeBox.getX(), interpolationTypeBox.getBottom()+indent/2, potSize, textHeight);
+    tooltipsToggle.setBounds( clearDelayLineButton.getX(), clearDelayLineButton.getBottom()+indent/2, potSize, textHeight );
+    
+    tooltipLabel.setBounds( 0, HEIGHT, WIDTH, textHeight*3 );
+    fbLinkChange();
+    linkOrSyncChange();
+    
 }
 
+void SjfWrecklessDelayAudioProcessorEditor::fbLinkChange()
+{
+    //    if (audioProcessor.getFbLinkState())
+    if ( fbLinkButton.getToggleState() )
+    {
+        //        DBG("FB LINKED");
+        fbRSlider.setVisible(false);
+        fbLSlider.setBounds(fbLSlider.getBounds().getX(), fbLSlider.getBounds().getY(), potSize*2, fbLSlider.getBounds().getHeight());
+//        fbLLabel.setText ("Feedback", juce::dontSendNotification);
+    }
+    else
+    {
+        //        DBG("FB NOT LINKED");
+        fbRSlider.setVisible(true);
+        fbLSlider.setBounds(fbLSlider.getBounds().getX(), fbLSlider.getBounds().getY(), potSize, fbLSlider.getBounds().getHeight());
+//        fbLLabel.setText ("Feedback L", juce::dontSendNotification);
+    }
+    repaint();
+}
 
-
-void SjfWrecklessDelayAudioProcessorEditor::timerCallback(){
-    if(audioProcessor.getSyncState()){
+void SjfWrecklessDelayAudioProcessorEditor::linkOrSyncChange()
+{
+    //    if( audioProcessor.getSyncState() )
+    if ( hostSyncButton.getToggleState() )
+    {
+        //        DBG("SYNCED");
         delTLSlider.setVisible(false);
         delTRSlider.setVisible(false);
         syncValLComboBox.setVisible(true);
         syncValLTypeComboBox.setVisible(true);
         syncValLOffsetNumBox.setVisible(true);
-        if(!audioProcessor.getLinkState()){
+        //        if(!audioProcessor.getLinkState())
+        if ( !linkButton.getToggleState() )
+        {
+            //            DBG("NOT LINKED");
             syncValRComboBox.setVisible(true);
             syncValRTypeComboBox.setVisible(true);
-            syncLabelL.setText ("Division L", juce::dontSendNotification);
+//            syncLabelL.setText ("Division L", juce::dontSendNotification);
             syncValLComboBox.setBounds(syncValLComboBox.getBounds().getX(), syncValLComboBox.getBounds().getY(), potSize, textHeight*2);
             syncValLTypeComboBox.setBounds(syncValLTypeComboBox.getBounds().getX(), syncValLTypeComboBox.getBounds().getY(), potSize, textHeight);
         }
-        else{
+        else
+        {
+            //            DBG("LINKED");
             syncValRComboBox.setVisible(false);
             syncValRTypeComboBox.setVisible(false);
-            syncLabelL.setText ("Division", juce::dontSendNotification);
+//            syncLabelL.setText ("Division", juce::dontSendNotification);
             syncValLComboBox.setBounds(syncValLComboBox.getBounds().getX(), syncValLComboBox.getBounds().getY(), potSize*2, textHeight*2);
             syncValLTypeComboBox.setBounds(syncValLTypeComboBox.getBounds().getX(), syncValLTypeComboBox.getBounds().getY(), potSize*2, textHeight);
         }
         syncValROffsetNumBox.setVisible(true);
         
     }
-    else{
+    else
+    {
+        //        DBG("NOT SYNCED");
         delTLSlider.setVisible(true);
-        if (!audioProcessor.getLinkState()){
+        //        if (!audioProcessor.getLinkState())
+        if( !linkButton.getToggleState() )
+        {
+            //            DBG("NOT LINKED");
             delTRSlider.setVisible(true);
             delTLSlider.setBounds(delTLSlider.getBounds().getX(), delTLSlider.getBounds().getY(), potSize, delTLSlider.getBounds().getHeight());
-            delTLLabel.setText ("Time L", juce::dontSendNotification);
+//            delTLLabel.setText ("Time L", juce::dontSendNotification);
         }
-        else{
+        else
+        {
+            //            DBG("LINKED");
             delTRSlider.setVisible(false);
             delTLSlider.setBounds(delTLSlider.getBounds().getX(), delTLSlider.getBounds().getY(), potSize*2, delTLSlider.getBounds().getHeight());
-            delTLLabel.setText ("Time", juce::dontSendNotification);
+//            delTLLabel.setText ("Time", juce::dontSendNotification);
         }
         syncValLComboBox.setVisible(false);
         syncValLTypeComboBox.setVisible(false);
@@ -402,15 +563,10 @@ void SjfWrecklessDelayAudioProcessorEditor::timerCallback(){
         syncValRTypeComboBox.setVisible(false);
         syncValROffsetNumBox.setVisible(false);
     }
-    
-    if (audioProcessor.getFbLinkState()){
-        fbRSlider.setVisible(false);
-        fbLSlider.setBounds(fbLSlider.getBounds().getX(), fbLSlider.getBounds().getY(), potSize*2, fbLSlider.getBounds().getHeight());
-        fbLLabel.setText ("Feedback", juce::dontSendNotification);
-    }
-    else if (!audioProcessor.getFbLinkState()){
-        fbRSlider.setVisible(true);
-        fbLSlider.setBounds(fbLSlider.getBounds().getX(), fbLSlider.getBounds().getY(), potSize, fbLSlider.getBounds().getHeight());
-        fbLLabel.setText ("Feedback L", juce::dontSendNotification);
-    }
+    repaint();
+}
+
+void SjfWrecklessDelayAudioProcessorEditor::timerCallback()
+{
+    sjf_setTooltipLabel( this, MAIN_TOOLTIP, tooltipLabel );
 }
