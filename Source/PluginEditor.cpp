@@ -573,6 +573,7 @@ void SjfWrecklessDelayAudioProcessorEditor::linkOrSyncChange()
             delTRSlider.setVisible(true);
             delTLSlider.setBounds(delTLSlider.getBounds().getX(), delTLSlider.getBounds().getY(), potSize, delTLSlider.getBounds().getHeight());
             delTLSlider.setTooltip("This sets the delay time for the left channel in milliseconds");
+            delTLSlider.sendLookAndFeelChange();
 //            delTLLabel.setText ("Time L", juce::dontSendNotification);
         }
         else
@@ -581,6 +582,7 @@ void SjfWrecklessDelayAudioProcessorEditor::linkOrSyncChange()
             delTRSlider.setVisible(false);
             delTLSlider.setBounds(delTLSlider.getBounds().getX(), delTLSlider.getBounds().getY(), potSize*2, delTLSlider.getBounds().getHeight());
             delTLSlider.setTooltip("This sets the delay time for both channels in milliseconds");
+            delTLSlider.sendLookAndFeelChange();
 //            delTLLabel.setText ("Time", juce::dontSendNotification);
         }
         syncValLComboBox.setVisible(false);
