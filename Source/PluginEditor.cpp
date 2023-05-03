@@ -338,12 +338,12 @@ SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 void SjfWrecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
 
-    juce::Rectangle<int> r { WIDTH, HEIGHT };
+#ifdef JUCE_DEBUG
+    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+#else
+    juce::Rectangle<int> r = { (int)( WIDTH ), (int)(HEIGHT + tooltipLabel.getHeight()) };
     sjf_makeBackground< 40 >( g, r );
-
-//    sjf_drawBackgroundImage( g, m_backgroundImage, getWidth(), getHeight() );
-    
-    
+#endif
     
 
     auto panelColour = otherLookandFeel.panelColour.withAlpha(0.3f);

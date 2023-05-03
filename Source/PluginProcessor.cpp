@@ -69,7 +69,7 @@ void SjfWrecklessDelayAudioProcessor::initialise( int sampleRate )
     if (sampleRate == 0){ sampleRate = 44100; }
     DBG("INITIALISING");
     static constexpr float RAMP_LENGTH = 0.005f;
-    auto skewVal = calculateLPFCoefficient< float > ( 1, sampleRate );
+//    auto skewVal = calculateLPFCoefficient< float > ( 1, sampleRate );
     //--------------------------------------------------
     static constexpr float WINDOW_SIZE = 50;
     for ( int i = 0; i < NUM_CHANNELS; i++ )

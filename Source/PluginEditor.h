@@ -10,7 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "../../sjf_audio/sjf_label.h"
+#include "../../sjf_audio/sjf_Label.h"
 #include "../../sjf_audio/sjf_numBox.h"
 #include "../../sjf_audio/sjf_LookAndFeel.h" 
 
