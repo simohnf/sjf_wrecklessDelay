@@ -4,7 +4,18 @@
 
 This is a stereo delay plug-in with pitchshifting, overdrive, and modulation. 
 
-NOTE: This requires functions and classes contained in [sjf_audio](https://github.com/simohnf/sjf_audio)
-
 [More info, audio samples, and installer](https://simohnf.github.io./plug-ins/sjf_wrecklessDelay/)
+
+------------------------------
+# To download source:
+
+In terminal 
+```
+git clone https://github.com/simohnf/sjf_wrecklessDelay
+
+cd sjf_wrecklessDelay
+
+git submodule update --init --recursive
+```
+---------------
 
