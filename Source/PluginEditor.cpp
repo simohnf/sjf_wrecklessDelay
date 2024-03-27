@@ -338,12 +338,12 @@ SjfWrecklessDelayAudioProcessorEditor::~SjfWrecklessDelayAudioProcessorEditor()
 void SjfWrecklessDelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
 
-    juce::Rectangle<int> r { WIDTH, HEIGHT };
+#ifdef JUCE_DEBUG
+    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+#else
+    juce::Rectangle<int> r = { (int)( WIDTH ), (int)(HEIGHT + tooltipLabel.getHeight()) };
     sjf_makeBackground< 40 >( g, r );
-
-//    sjf_drawBackgroundImage( g, m_backgroundImage, getWidth(), getHeight() );
-    
-    
+#endif
     
 
     auto panelColour = otherLookandFeel.panelColour.withAlpha(0.3f);
@@ -573,6 +573,7 @@ void SjfWrecklessDelayAudioProcessorEditor::linkOrSyncChange()
             delTRSlider.setVisible(true);
             delTLSlider.setBounds(delTLSlider.getBounds().getX(), delTLSlider.getBounds().getY(), potSize, delTLSlider.getBounds().getHeight());
             delTLSlider.setTooltip("This sets the delay time for the left channel in milliseconds");
+            delTLSlider.sendLookAndFeelChange();
 //            delTLLabel.setText ("Time L", juce::dontSendNotification);
         }
         else
@@ -581,6 +582,7 @@ void SjfWrecklessDelayAudioProcessorEditor::linkOrSyncChange()
             delTRSlider.setVisible(false);
             delTLSlider.setBounds(delTLSlider.getBounds().getX(), delTLSlider.getBounds().getY(), potSize*2, delTLSlider.getBounds().getHeight());
             delTLSlider.setTooltip("This sets the delay time for both channels in milliseconds");
+            delTLSlider.sendLookAndFeelChange();
 //            delTLLabel.setText ("Time", juce::dontSendNotification);
         }
         syncValLComboBox.setVisible(false);

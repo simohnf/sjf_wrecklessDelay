@@ -9,17 +9,15 @@
 #pragma once
 
 #include <JuceHeader.h>
-//#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_pitchShifter.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_pitchShift.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_comb.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_overdrive.h"
-//#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_oscillator.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_audioUtilities.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_lpf.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_wavetables.h"
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_phasor.h"
+#include "../sjf_audio/sjf_pitchShift.h"
 
-#include "/Users/simonfay/Programming_Stuff/sjf_audio/sjf_numBox.h"
+#include "../sjf_audio/sjf_overdrive.h"
+#include "../sjf_audio/sjf_audioUtilities.h"
+#include "../sjf_audio/sjf_lpf.h"
+#include "../sjf_audio/sjf_wavetables.h"
+#include "../sjf_audio/sjf_phasor.h"
+
+#include "../sjf_audio/sjf_numBox.h"
 
 //==============================================================================
 /**
