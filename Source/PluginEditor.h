@@ -52,13 +52,12 @@ private:
     
 //    juce::Label dryLabel, wetLabel,fbLLabel, fbRLabel, detuneLLabel, detuneRLabel, delTLLabel, delTRLabel, syncLabelL, syncLabelR, lpCutOffLabel, hpCutOffLabel, lfoRLabel, lfoDLabel, overdriveOutLabel, overdrivePlacementLabel;
     juce::Label tooltipLabel;
+    juce::String MAIN_TOOLTIP = "sjf_wrecklessDelay: \nStereo delay with independent detune for each channel, lfo modulation, and soft clipping";
     
     juce::Slider drySlider, wetSlider, fbLSlider, fbRSlider, delTLSlider, delTRSlider, lpCutOffSlider, hpCutOffSlider, overdriveGainSlider,/* overdriveOutSlider,*/ lfoRSlider, lfoDSlider;
     
     juce::ToggleButton linkButton, hostSyncButton, fbLinkButton, fbControlButton, overdriveOnButton, tooltipsToggle;
     juce::TextButton clearDelayLineButton;
-
-    juce::String MAIN_TOOLTIP = "sjf_wrecklessDelay: \nStereo delay with independent detune for each channel, lfo modulation, and soft clipping";
     
     juce::ComboBox interpolationTypeBox, syncValLComboBox, syncValRComboBox, syncValLTypeComboBox, syncValRTypeComboBox, overdrivePlacementComboBox;
     sjf_numBox syncValLOffsetNumBox, syncValROffsetNumBox, detuneLSlider, detuneRSlider;
